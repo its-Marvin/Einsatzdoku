@@ -1,0 +1,74 @@
+{% load static %}
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta  name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{ einstellungen.Name }}</title>
+	<link rel="stylesheet" media="screen" type="text/css" href="{% static 'doku/style.css' %}">
+	<link rel="stylesheet" media="print" type="text/css" href="{% static 'doku/print.css' %}">
+	<link rel="shortcut icon" href="{%  static 'doku/favicon.ico' %}">
+	<script type="text/javascript" src="{% static 'doku/jquery-3.4.1.min.js' %}"></script>
+</head>
+</body>
+	{% csrf_token %}
+	<!-- Menu -->
+	<div class="topmenu">
+	<!-- Userinfo -->
+		<div class="header linkesModul">
+			<div class="dropdown">
+				<a href="{% url 'doku:index' %}"><div class="dropbtn">Einsatzübersicht</div></a>
+				<div class="dropdown-content">
+					{% for einsatz in aktive_Einsaetze %}
+						<a href="{% url 'doku:einsatz' einsatz.Nummer %}">#{{ einsatz.Nummer }} - {{ einsatz.Stichwort.Kurzname }} {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}</a>
+					{% endfor %}
+				</div>
+			</div>
+			
+				
+			
+		</div>
+		<div class="header mittleresModul Titel">
+			<img class="logo-rechts" src="{% static 'doku/logo-feuerwehr.png' %}">
+			<img class="logo-links" src="{% static 'doku/logo.png' %}">
+			<h1>{{ einstellungen.Name }}</h1>
+		</div>
+		<div class="header rechtesModul">
+		{% if autor %}
+			<div class="dropdown">
+				<div class="dropbtn"><b>Angemeldet: </b>{{ autor.first_name }}</div>
+				<div class="dropdown-content">
+					<a href="/doku/Benutzer/logout?next={{ request.path }}">Abmelden</a>
+					<p onclick="print()">Drucken</p>
+					<a href="{% url 'doku:toggleNightmode' %}" class="nightmode">Tagmodus</a>
+					{% if request.user.is_staff %}<a target="_blank" href="/admin">Administration</a>{% endif %}
+				</div>
+			</div>
+		{% else %}
+			<div class="dropdown">
+				<div class="dropbtn">Nicht angemeldet</div>
+				<div class="dropdown-content">
+					<a href="/doku/Benutzer/login?next={{ request.path }}">Anmelden</a>
+				</div>
+			</div>
+		{% endif %}
+		</div>
+	</div>
+	<div class="content">
+	{% block content %}
+	{% endblock %}
+	</div>
+	<script type="text/javascript" src="{% static 'doku/scripts.js' %}"></script>
+	{% if not autor.profile.nightmode %}
+		<script>
+			$(".nightmode").html("Nachtmodus");
+			document.documentElement.style.setProperty('--main-bg-color', '#fff');
+			document.documentElement.style.setProperty('--sec-bg-color', '#fff');
+			document.documentElement.style.setProperty('--element-color', '#ddd');
+			document.documentElement.style.setProperty('--text-element-color', '#ddd');
+			document.documentElement.style.setProperty('--highlight-color', '#700');
+			document.documentElement.style.setProperty('--text-color', '#000');
+			document.documentElement.style.setProperty('--text-inverse-color', '#000');
+		</script>
+	{% endif %}
+</body>
+</html>

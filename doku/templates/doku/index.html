@@ -1,0 +1,68 @@
+{% extends "doku/base_generic.html" %}
+
+{% block content %}
+
+	<div class="Modul linkesModul">
+		{% if autor %}
+		<h2>Neuer Einsatz</h2>
+		<div class="minimize-button active">-</div>
+		<div class="minimize-this">
+			<div class="Formular">
+				<form name="neuer_Einsatz" action="{% url 'doku:neuerEinsatz' %}" method="post" autocomplete="off">
+					{% csrf_token %}
+					<input hidden class="do-not-show" autocomplete="false">
+					<select class="Ort" name="Ort">
+							<option value="" disabled selected>Ort</option>
+						{% for Ort in alle_Orte %}
+							<option value="{{ Ort.Kurzname }}">{{ Ort.Langname }}</option>
+						{% endfor %}
+					</select>
+					<input hidden class="Freitext" name="Freitext" placeholder="Freitext Ort">
+					<input name="Adresse" placeholder="Straße oder Objekt" maxlength="30" size="30" required/>
+					<select name="Stichwort">
+							<option value="" disabled selected>Alarmstichwort</option>
+						{% for Stichwort in alle_Stichworte %}
+							<option value="{{ Stichwort.Kurzname }}">{{ Stichwort.Kurzname }} - {{ Stichwort.Langname }}</option>
+						{% endfor %}
+					</select><br />
+					<input type="submit" value="Hinzufügen">
+				</form>
+				<script>
+					$(".Freitext").hide();
+					$(".Ort").change(function() {
+						if($(".Ort option:selected").text() == "Freitext") {
+							$(".Freitext").show();
+						} else {
+							$(".Freitext").hide();
+						}
+					});
+				</script>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+	{% if alle_Einsaetze %}
+	<div class="Modul mittleresModul">
+		<h2>aktive Einsätze</h2>
+		<div class="minimize-button active">-</div>
+		<div class="minimize-this">&nbsp;
+			<ul>
+			{% for einsatz in alle_Einsaetze %}
+				{% if not einsatz.Ende %}<a href="{% url 'doku:einsatz' einsatz.Nummer %}"><li {% if not einsatz.Ende %}class="Wichtig"{% endif %}>#{{ einsatz.Nummer }} - {{ einsatz.Stichwort.Langname }} {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}{% if einsatz.extNummer %} (#{{ einsatz.extNummer }}){% endif %}</li></a>{% endif %}
+			{% endfor %}
+			</u>
+		</div>
+	</div>
+	<div class="Modul rechtesModul">
+		<h2>beendete Einsätze</h2>
+		<div class="minimize-button active">-</div>
+		<div class="minimize-this">&nbsp;
+			<ul>
+			{% for einsatz in alle_Einsaetze %}
+				{% if einsatz.Ende %}<a href="{% url 'doku:einsatz' einsatz.Nummer %}"><li>{{ einsatz.Stichwort.Kurzname }} {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}{% if einsatz.extNummer %} <b>#{{ einsatz.extNummer }}</b>{% endif %}<ul><li>Von: {{ einsatz.Erstellt }}</li><li>Bis: {{ einsatz.Ende }}</li></ul></li></a>{% endif %}
+			{% endfor %}
+			</ul>
+		</div>
+	</div>
+	{% endif %}
+{% endblock %}

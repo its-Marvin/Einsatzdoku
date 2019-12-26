@@ -1,0 +1,58 @@
+{% extends "doku/base_generic.html" %}
+{% load static %}
+
+{% block content %}
+	{% if autor %}
+	<div class="Modul linkesModul do-not-print no-smartphone">
+		{% if autor and not einsatz.Ende %}
+		<h2>Tools</h2>
+		<div class="minimize-button active">-</div>
+		<div class="minimize-this" style="display:block;">
+			<div class="Toolbox">
+				<a target="_blank" href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3"><button type="button">Google Maps</button></a>
+				<input type="file" id="importBackground" accept="image/png, image/jpeg" name="Hintergrund auswählen" hidden>
+				<button id="fakeImport" type="button" onclick="importBackground.click()">Hintergrund einfügen</button>
+				<button id="speichern" type="button">Version speichern</button>
+				<br><br>
+				<input id="newText" type="text" placeholder="Text für Lagekarte">
+				<button id="addText"  onclick="cursor()">Text hinzufügen</button>
+				<button id="cursor"  onclick="cursor()">Drag&Drop</button>
+				<button id="penciltool" type="button" onclick="pencil()">Stift</button>
+				<button id="linetool" type="button" onclick="line()">Linie</button>
+				<button id="rectangletool" type="button" onclick="rectangle()">Rechteck</button>
+				<button id="circletool" type="button" onclick="circle()">Kreis</button>
+				<!--<button id="erasertool" type="button" style="height: 25px; width: 100px;" onclick="eraser()">Radiergummi</button>
+				<button id="resettool" type="button" style="height: 25px; width: 100px;" onclick="reset()">Reset</button>-->
+				<button id="Farbauswahl" type="button">Farbauswahl</button>
+				<input type="range" min="4" max="16" step="2" value="6" id="stiftdickeauswahl">
+				<div id="Farbpalette"></div>
+			</div>
+		</div>
+		{% else %}
+		<h2>Einsatzende</h2>
+		Keine weitere Bearbeitung möglich!
+		{% endif %}
+	</div>
+	<div class="Modul mittleresModul do-not-print no-smartphone">
+		<h2>neue Lagekarte</h2>
+		<div class="minimize-button active">-</div>
+		<div class="minimize-this" style="display:block;">
+			<canvas id="Lagekarte" width="3840" height="2160">Der Browser unterstützt dieses Feature nicht!</canvas>
+		</div>
+	</div>
+	<div class="Modul rechtesModul">
+		<h2>alle Lagekarten</h2>
+		<div class="minimize-button active">-</div>
+		<div class="minimize-this" style="display:block;">
+			{% for karte in lagekarten %}
+				<img class="Archivkarte" src="{{ karte.Bild }}" alt="{{ karte.Data }}">
+				<div class="ArchivText">{{ karte.Erstellt }}</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% csrf_token %}
+	<script type="text/javascript" src="{% static 'doku/lagekarte.js' %}"></script>
+	{% else %}
+		<h2>Bitte anmelden, um die Lagekarten sehen zu können</h2>
+	{% endif %}
+{% endblock %}

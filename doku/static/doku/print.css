@@ -1,0 +1,76 @@
+html {
+	margin: 0px;
+	padding: 0px;
+	background-color: #fff;
+	color: #000;
+	font-family: "Lucida Sans", sans-serif;
+	font-size: 110%;
+}
+
+div.topmenu {
+	display: none;
+}
+
+div.Modul {
+	width: 100%;
+}
+
+form {
+	display: none;
+}
+
+.minimize-button {
+	display: none;
+}
+
+.print {
+	font-size:80%;
+	list-style-type: none;
+	color: #333;
+}
+table {
+	width: 100%;
+}
+td {
+    border-bottom: 1px solid #000;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 0.5em;
+    padding-top: 0.5em;
+}
+.spalte1 {
+	width: 60%;
+}
+.spalte2 {
+	width: 5%;
+	text-align: center;
+}
+.spalte3 {
+	width: 30%;
+	text-align: center;
+}
+.spalte4 {
+	width: 5%;
+	text-align: center;
+}
+
+.do-not-print {
+	display: none;
+}
+
+input {
+    border: none;
+    font-size: 100%;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.Archivkarte {
+    width: 100%;
+}
+.ArchivText {
+    margin-bottom: 10px;
+}

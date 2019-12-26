@@ -1,0 +1,506 @@
+:root {
+  --main-bg-color: #222;
+  --sec-bg-color: #444;
+  --element-color: #555;
+  --text-element-color: #bbb;
+  --highlight-color: #700;
+  --highlight-text-color: #fff;
+  --text-color: #fff;
+  --text-inverse-color: #000;
+}
+
+html {
+	margin: 0px;
+	padding: 0px;
+	background-color: var(--main-bg-color);
+	color: var(--text-color);
+	font-family: "Lucida Sans", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+div.Titel {
+	display: none;
+}
+div.header {
+	float: left;
+	width: 50%;
+	font-size: 80%;
+	padding-left: 1%;
+	padding-right: 1%;
+}
+div.content { width: 100%; }
+
+.no-smartphone {display: none;}
+
+@media only screen and (min-width: 1000px) {
+	div.topmenu {
+		height: 10%;
+		background-color: var(--sec-bg-color);
+		border: 3px solid var(--main-bg-color);
+	}
+	div.header {
+		font-size: 100%;
+	}
+
+	div.Hauptmenu {
+		width: 20%;
+	}
+
+	div.Titel {
+		width: 60%;
+		text-align: center;
+		display: initial;
+	}
+
+	div.Benutzer {
+		width: 20%;
+	}
+
+	.no-smartphone {
+	    display: block;
+	}
+}
+
+div.Modul {
+	margin-bottom: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+	padding: 1%;
+	padding-top: 0;
+	background-color: var(--sec-bg-color);
+	border: 3px solid var(--main-bg-color);
+	float: left;
+	width: 100%;
+}
+@media only screen and (min-width: 1000px) {
+	.linkesModul	{
+		width: 20% !important;
+	}
+
+	.mittleresModul {
+		width: 60% !important;
+	}
+
+	.rechtesModul {
+		width: 20% !important;
+	}
+}
+
+@media only screen and (min-width: 1400px) {
+	div.Modul {
+		font-size: 120%;
+	}
+	div.Formular {
+		width: 80%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
+div.minimize-button {
+	text-align: right;
+	float: right;
+	font-size: 150%;
+	width:5%;
+}
+
+h2 {
+	float: left;
+	width: 95%;
+}
+
+.Login h2 {
+    width: initial;
+    float: initial;
+}
+
+a {
+	color: var(--text-color);
+	text-decoration: None;
+}
+a:hover {
+	color: var(--text-color);
+}
+a:active {
+	color: var(--text-color);
+}
+a:visited {
+	color: var(--text-color);
+}
+
+.Button {
+	margin-left: 3%;
+	margin-top: 3%;
+	text-align: center;
+	padding: 10px;
+	width: 120px;
+	background-color: var(--element-color);
+	border: 1px solid var(--main-bg-color);
+}
+.Button:hover {
+	background-color:var(--sec-bg-color);
+}
+
+ul {
+	text-align: left;
+	padding-left: 0;
+}
+
+li {
+	padding: .5em;
+	margin-bottom: .125em;
+	display: block;
+	list-style: none;
+	background-color: var(--text-element-color);
+	color: var(--text-inverse-color);
+	width: 98%;
+}
+li li {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    padding-right: 0;
+}
+.tooltiptext li {
+	margin: 0px;
+	background-color: var(--element-color);
+	color: var(--text-color);
+}
+ul.tooltiptext {
+	padding: 0px !important;
+	margin: 0px;
+}
+li.Person {
+	cursor: pointer;
+}
+li b {float: right;}
+
+.Wichtig {
+	background-color: var(--highlight-color);
+	color: var(--highlight-text-color);
+}
+
+.SummePersonal div {
+    float: right;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 60%;
+  background-color: var(--element-color);
+  color: var(--text-color);
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 0px;
+  border: 2px solid var(--main-bg-color);
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  top: 95%;
+  left: 15%;
+  margin-left: -60px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 0%;
+  left: 50%;
+  margin-left: -5px;
+  /* border-width: 5px; */
+  /* border-style: solid; */
+  /* border-color: var(--element-color) transparent transparent transparent; */
+}
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.dropbtn {
+  background-color: var(--element-color);
+  color: var(--text-color);
+  padding: 16px;
+  border: 1px solid var(--text-inverse-color);
+  cursor: pointer;
+  width: 98%;
+  margin-top: 10px;
+}
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: var(--text-element-color);
+  width: 98%;
+  z-index: 1;
+}
+.dropdown-content a, .dropdown-content  p {
+  margin: 0;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  border: 1px solid var(--text-inverse-color);
+  border-top: none;
+  display: block;
+  cursor: pointer;
+}
+.dropdown-content a:hover, .dropdown-content p:hover {
+	background-color: var(--highlight-color);
+	color: var(--highlight-text-color);
+}
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.dropdown:hover .dropbtn {
+  background-color: var(--sec-bg-color);
+}
+
+.do-not-show {
+	display: none;
+}
+
+/* ###################### Custom forms #########################*/
+form {
+	width: 100%;
+	padding-bottom: 25px;
+}
+input, select {
+	border: none;
+	border-bottom: 1px solid var(--text-inverse-color);
+	display: block;
+	padding: 6px 15px;
+	width: 98%;
+	margin-bottom: 5px;
+	color: var(--text-color);
+	background-color: var(--sec-bg-color);
+}
+input[type=submit] {
+	border: 1px solid var(--text-inverse-color);
+	background-color: var(--element-color);
+	width: 98%;
+	display: inline-block;
+	margin-bottom: 0;
+	float: left;
+}
+input:focus, select:focus {
+	border: 1px solid var(--highlight-color);
+	outline: none;
+}
+input[type=submit].check {
+	width: calc(98% - 28px);
+}
+input[type=submit]:hover {
+    background-color: var(--sec-bg-color);
+    cursor: pointer;
+}
+
+/* ###################### Custom checkbox #########################*/
+.checkboxdiv { 
+	position: initial; 
+	display: inline-block;
+	width: 29px;
+	height: 29px;
+	float: left;
+}
+/* Customize the label (the container) */
+.container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 29px;
+  width: 29px;
+  background-color: var(--element-color);
+  border: 1px solid var(--text-inverse-color);
+  padding-top: 2px;
+  text-align: center;
+}
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: var(--sec-bg-color);
+}
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: var(--highlight-color);
+  color: var(--highlight-text-color);
+}
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--text-color);
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.logo-links {
+	float: left;
+	margin-top: 5px;
+	height: 85%;
+}
+
+.logo-rechts {
+	float: right;
+	margin-top: 5px;
+	height: 85%;
+	margin-right: 2%;
+}
+
+#eNr input {
+    font-size: 100%;
+    padding-bottom: 2px;
+}
+
+/* Lagekarte */
+#Lagekarte {
+	background-color: #fff;
+}
+
+#paint {
+    position  : absolute;
+    left      : 130px;
+    top       : 40px;
+}
+
+#colorset {
+    position  : absolute;
+    left      : 0px;
+    top       : 500px;
+    width     : 860px;
+}
+
+.Toolbox button {
+    margin-bottom: -1px;
+    height: 30px;
+    width: 98%;
+    background: var(--element-color);
+    color     : var(--text-color);
+    border    : 1px solid var(--main-bg-color);
+    cursor: pointer;
+}
+
+.Toolbox button:hover {
+    background: var(--sec-bg-color);
+}
+
+.Toolbox button.selected, button:focus {
+    background: var(--highlight-color);
+    color     : var(--highlight-text-color);
+    border    : 1px solid var(--text-inverse-color);
+    outline: none;
+}
+
+#Farbpalette {
+    width: 165px;
+}
+.color-option {
+    width: 15px;
+    height: 15px;
+    float: left;
+}
+
+#importBackground {
+    display: none;
+}
+
+.Archivkarte {
+    width: 98%;
+    margin-bottom: -2px;
+    border-bottom: 2px solid var(--main-bg-color);
+    border-top: 3px solid var(--highlight-color);
+    border-left: 3px solid var(--highlight-color);
+    border-right: 3px solid var(--highlight-color);
+}
+.ArchivText {
+    text-align: center;
+    width: 98%;
+    margin-bottom: 5px;
+    border-top: 2px solid var(--main-bg-color);
+    border-bottom: 3px solid var(--highlight-color);
+    border-left: 3px solid var(--highlight-color);
+    border-right: 3px solid var(--highlight-color);
+    background: var(--highlight-color);
+    padding: 3px;
+    font-size: 80%;
+}
+
+#stiftdickeauswahl {
+    margin: 0px;
+    -webkit-appearance: none;
+    width: 98%;
+    height: 30px;
+    background: var(--element-color);
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border: 1px solid var(--text-inverse-color);
+}
+
+#stiftdickeauswahl:hover {
+    background: var(--sec-bg-color);
+}
+
+#stiftdickeauswahl::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    background: var(--highlight-color);
+    cursor: pointer;
+}
+
+#stiftdickeauswahl::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: var(--highlight-color);
+    cursor: pointer;
