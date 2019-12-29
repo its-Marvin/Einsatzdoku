@@ -8,18 +8,22 @@
 		<h2>Grunddaten</h2>
 		<div class="minimize-button active">-</div>
 		<div class="minimize-this" style="display:block;">
+			{% if einstellungen.Einsatznummer %}
 			<b>Einsatznummer:</b><br>
 				{% if autor and not einsatz.Ende %}
 					<div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span><input name="extENr" placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
 				{% else %}
 					&nbsp;&nbsp;&nbsp;{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %}<br>
 				{% endif %}
+			{% endif %}
+			{% if einstellungen.Einsatzleiter %}
 			<b>Einsatzleiter:</b><br>
 				{% if autor and not einsatz.Ende %}
 					<div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span><input name="einsatzleiter" placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}value="{{ einsatz.Einsatzleiter }}"{% endif %} autocomplete="false"></div>
 				{% else %}
 					&nbsp;&nbsp;&nbsp;{% if einsatz.Einsatzleiter %}{{ einsatz.Einsatzleiter }}{% else %}Kein Einsatzleiter eingetragen!{% endif %}<br>
 				{% endif %}
+			{% endif %}
 			<b>Einsatzstichwort:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Stichwort }}<br>
 			<b>Adresse:</b><br>&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3">{{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}</a><br>
 			<b>Einsatzbeginn:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Erstellt }}<br>
@@ -50,6 +54,7 @@
 				</script>
 			{% endif %}
 		</div>
+		{% if einstellungen.Personen %}
 		<h2 {% if not alle_Personen %}class="do-not-print" {% endif %}>Beteiligte Personen</h2>
 		<div class="minimize-button active">-</div>
 		<div class="minimize-this" style="display:block;">
@@ -72,6 +77,7 @@
 				</ul>
 			{% endif %}
 		</div>
+		{% endif %}
 	</div>
 	
 	<!-- Abschnitt Meldungen -->
@@ -165,6 +171,7 @@
 		</div>
 	</div>
     {% endif %}
+	{% if einstellungen.Fahrzeuge %}
 	<h2 {% if not eingesetzte_Fahrzeuge %}class="do-not-print" {% endif %}>Fahrzeuge und Stärken</h2>
 	<div class="minimize-button active">-</div>
 	<div class="minimize-this" style="display:block;">
@@ -222,7 +229,8 @@
 				},
 			})
 		</script>
-		</div>
+	</div>
+	{% endif %}
 	</div>
 {% else %}
 	<h2>Kein Einsatz mit dieser Nummer vorhanden!</h2>

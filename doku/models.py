@@ -148,8 +148,14 @@ class SingletonModel(models.Model):
 
 class Einstellungen(SingletonModel):
     Name = models.CharField(max_length=50, null=False, default="Einsatzverwaltung")
-    Schulung = models.BooleanField(default=False)
     Lagekarten = models.BooleanField(default=True)
+    Personen = models.BooleanField(default=True)
+    Fahrzeuge = models.BooleanField(default=True)
+    Einsatzleiter = models.BooleanField(default=True)
+    Einsatznummer = models.BooleanField(default=True)
+
+    def __str__(self):
+        return "Allgemeine Einstellungen"
 
 
 @receiver(post_save, sender=User)
