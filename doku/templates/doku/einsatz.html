@@ -76,7 +76,7 @@
 	
 	<!-- Abschnitt Meldungen -->
 	<div class="Modul mittleresModul">
-	<h2>Meldungen</h2>
+	<h2>{% if einsatz.Training %}Trainings-{% endif %}Meldungen</h2>
 	<div class="minimize-button active">-</div>
 	<div class="minimize-this" style="display:block;">
 		{% if autor and not einsatz.Ende %}
@@ -135,7 +135,6 @@
 							var jsonResponse = JSON.parse(data);
 							for (var i = 0; i < jsonResponse.length; i++){
 								var obj = jsonResponse[i];
-								console.log("Neue Meldung geladen: " + obj.fields.Inhalt);
 								if (obj.fields.Wichtig) {
 									$(".Meldung").first().before('<li class="Meldung Wichtig Tooltip" id="' + obj.pk + '">' + obj.fields.Erstellt + " - " + obj.fields.Inhalt + '<ul class="tooltiptext print"><li>Verfasst von ' + obj.fields.Autor + ' am ' + obj.fields.Erstellt + '</li></ul></li>');
 								} else {
@@ -198,7 +197,6 @@
 				url: "{% url 'doku:summePersonal' einsatz.Nummer %}",
 				success: function(data) {
 					var jsonResponse = JSON.parse(data);
-					console.log(jsonResponse);
 					for (var zug in jsonResponse) {
 						var ausgabe = "<li class='SummePersonal Wichtig'>";
 						if (zug != 'Gesamt') {

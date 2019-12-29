@@ -12,26 +12,34 @@
 </body>
 	{% csrf_token %}
 	<!-- Menu -->
-	<div class="topmenu">
+	<div class="topmenu{% if training %} Wichtig{% endif %}">
 	<!-- Userinfo -->
 		<div class="header linkesModul">
 			<div class="dropdown">
-				<a href="{% url 'doku:index' %}"><div class="dropbtn">Einsatzübersicht</div></a>
+				<a href="{% if training %}{% url 'doku:index_training' %}{% else %}{% url 'doku:index' %}{% endif %}">
+					<div class="dropbtn">Einsatzübersicht</div>
+				</a>
 				<div class="dropdown-content">
 					{% for einsatz in aktive_Einsaetze %}
-						<a href="{% url 'doku:einsatz' einsatz.Nummer %}">#{{ einsatz.Nummer }} - {{ einsatz.Stichwort.Kurzname }} {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}</a>
+						<a href="{% url 'doku:einsatz' einsatz.Nummer %}">
+							#{{ einsatz.Nummer }} - {{ einsatz.Stichwort.Kurzname }}
+							{% if einsatz.OrtFrei %}
+								{{ einsatz.OrtFrei }}
+							{% else %}
+								{{ einsatz.Ort.Langname }}
+							{% endif %}
+						</a>
 					{% endfor %}
 				</div>
 			</div>
-			
-				
-			
 		</div>
+
 		<div class="header mittleresModul Titel">
 			<img class="logo-rechts" src="{% static 'doku/logo-feuerwehr.png' %}">
 			<img class="logo-links" src="{% static 'doku/logo.png' %}">
-			<h1>{{ einstellungen.Name }}</h1>
+			<h1 id="titel">{% if training %}Trainingsmodus{% else %}{{ einstellungen.Name }}{% endif %}</h1>
 		</div>
+
 		<div class="header rechtesModul">
 		{% if autor %}
 			<div class="dropdown">
@@ -40,6 +48,9 @@
 					<a href="/doku/Benutzer/logout?next={{ request.path }}">Abmelden</a>
 					<p onclick="print()">Drucken</p>
 					<a href="{% url 'doku:toggleNightmode' %}" class="nightmode">Tagmodus</a>
+					<a href="{% if training %}{% url 'doku:index' %}{% else %}{% url 'doku:index_training' %}{% endif %}">
+						{% if training %}Einsatzmodus{% else %}Trainingsmodus{% endif %}
+					</a>
 					{% if request.user.is_staff %}<a target="_blank" href="/admin">Administration</a>{% endif %}
 				</div>
 			</div>
@@ -58,7 +69,7 @@
 	{% endblock %}
 	</div>
 	<script type="text/javascript" src="{% static 'doku/scripts.js' %}"></script>
-	{% if not autor.profile.nightmode %}
+	{% if autor and not autor.profile.nightmode %}
 		<script>
 			$(".nightmode").html("Nachtmodus");
 			document.documentElement.style.setProperty('--main-bg-color', '#fff');

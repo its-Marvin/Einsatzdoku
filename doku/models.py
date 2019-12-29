@@ -40,6 +40,7 @@ class Einsatz(models.Model):
     Ort = models.ForeignKey('Ort', on_delete=models.PROTECT)
     OrtFrei = models.CharField(max_length=200, null=True)
     Ende = models.DateTimeField(default=None, null=True, editable=False)
+    Training = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.Nummer) + "_" + self.Stichwort.Kurzname + "_" + self.Ort.Kurzname

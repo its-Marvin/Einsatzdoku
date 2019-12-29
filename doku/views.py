@@ -1,5 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
-from django.template import loader
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -14,11 +13,30 @@ from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichw
 def index(request):
     Ort.objects.get_or_create(PLZ=0, Kurzname="ZZZ", Langname="Freitext")
     einstellungen = Einstellungen.objects.filter(pk=1)[0]
-    alle_Einsaetze = Einsatz.objects.order_by('-Nummer')
+    alle_Einsaetze = Einsatz.objects.filter(Training=False).order_by('-Nummer')
     alle_Stichworte = Stichwort.objects.order_by('Kurzname')
     alle_Orte = Ort.objects.order_by('Kurzname')
     autor = request.user if request.user.is_authenticated else None
     context = {
+        'training': False,
+        'einstellungen': einstellungen,
+        'autor': autor,
+        'alle_Einsaetze': alle_Einsaetze,
+        'alle_Stichworte': alle_Stichworte,
+        'alle_Orte': alle_Orte,
+    }
+    return render(request, 'doku/index.html', context)
+
+
+def index_training(request):
+    Ort.objects.get_or_create(PLZ=0, Kurzname="ZZZ", Langname="Freitext")
+    einstellungen = Einstellungen.objects.filter(pk=1)[0]
+    alle_Einsaetze = Einsatz.objects.filter(Training=True).order_by('-Nummer')
+    alle_Stichworte = Stichwort.objects.order_by('Kurzname')
+    alle_Orte = Ort.objects.order_by('Kurzname')
+    autor = request.user if request.user.is_authenticated else None
+    context = {
+        'training': True,
         'einstellungen': einstellungen,
         'autor': autor,
         'alle_Einsaetze': alle_Einsaetze,
@@ -34,13 +52,14 @@ def einsatz(request, einsatz_id):
         einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
     except:
         einsatz = None
-    aktive_Einsaetze = Einsatz.objects.filter(Ende=None).order_by('-Nummer')
+    aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
     alle_Meldungen = Meldung.objects.order_by('-Erstellt').filter(Einsatz=einsatz_id)
     eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz_id)
     alle_Personen = Person.objects.filter(Einsatz=einsatz_id)
     alle_Fahrzeuge = Fahrzeuge.objects.filter()
     autor = request.user if request.user.is_authenticated else None
     context = {
+        'training': einsatz.Training,
         'einstellungen': einstellungen,
         'autor': autor,
         'einsatz': einsatz,
@@ -65,10 +84,11 @@ def lagekarte(request, einsatz_id):
             return HttpResponseServerError
     else:
         einstellungen = Einstellungen.objects.filter(pk=1)[0]
-        aktive_Einsaetze = Einsatz.objects.filter(Ende=None).order_by('-Nummer')
+        aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
         lagekarten = Lagekarte.objects.filter(Einsatz=einsatz_id).order_by('-Erstellt')
         autor = request.user if request.user.is_authenticated else None
         context = {
+            'training': einsatz.Training,
             'einstellungen': einstellungen,
             'autor': autor,
             'einsatz': einsatz,
@@ -90,6 +110,22 @@ def neuer_Einsatz(request):
         return HttpResponse("<h1>Fehler bei der Verarbeitung</h1><h2>Ungültige Daten für die Einsatzanlage</h2>")
     else:
         e = Einsatz(Stichwort=stichwort, Adresse=adresse, Ort=ort, OrtFrei=ort_frei)
+        e.save()
+        return HttpResponseRedirect(reverse('doku:einsatz', args=[e.pk]))
+
+
+def neues_Training(request):
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+    try:
+        ort = get_object_or_404(Ort, Kurzname=request.POST['Ort'])
+        stichwort = get_object_or_404(Stichwort, Kurzname=request.POST['Stichwort'])
+        ort_frei = request.POST.get('Freitext', "")
+        adresse = request.POST['Adresse']
+    except:
+        return HttpResponse("<h1>Fehler bei der Verarbeitung</h1><h2>Ungültige Daten für die Einsatzanlage</h2>")
+    else:
+        e = Einsatz(Stichwort=stichwort, Adresse=adresse, Ort=ort, OrtFrei=ort_frei, Training=True)
         e.save()
         return HttpResponseRedirect(reverse('doku:einsatz', args=[e.pk]))
 

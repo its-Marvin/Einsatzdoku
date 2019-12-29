@@ -178,7 +178,7 @@ li.Person {
 li b {float: right;}
 
 .Wichtig {
-	background-color: var(--highlight-color);
+	background-color: var(--highlight-color) !important;
 	color: var(--highlight-text-color);
 }
 
