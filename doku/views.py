@@ -161,7 +161,10 @@ def neue_Meldung(request, einsatz_id):
         raise PermissionDenied
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
     try:
-        inhalt = request.POST['Zug']
+        if request.POST.get('Zug') is None:
+            inhalt = ""
+        else:
+            inhalt = request.POST['Zug']
         inhalt += request.POST['Inhalt']
     except:
         return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
