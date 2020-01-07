@@ -57,6 +57,7 @@ def einsatz(request, einsatz_id):
     eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz_id)
     alle_Personen = Person.objects.filter(Einsatz=einsatz_id)
     alle_Fahrzeuge = Fahrzeuge.objects.filter()
+    alle_Zuege = Zug.objects.filter()
     autor = request.user if request.user.is_authenticated else None
     context = {
         'training': einsatz.Training,
@@ -68,6 +69,7 @@ def einsatz(request, einsatz_id):
         'eingesetzte_Fahrzeuge': eingesetzte_Fahrzeuge,
         'alle_Fahrzeuge': alle_Fahrzeuge,
         'alle_Personen': alle_Personen,
+        'alle_Zuege': alle_Zuege,
     }
     return render(request, 'doku/einsatz.html', context)
 
@@ -159,7 +161,8 @@ def neue_Meldung(request, einsatz_id):
         raise PermissionDenied
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
     try:
-        inhalt = request.POST['Inhalt']
+        inhalt = request.POST['Zug']
+        inhalt += request.POST['Inhalt']
     except:
         return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
     else:
@@ -241,10 +244,8 @@ def meldung(request, einsatz_id):
         lastID = request.GET['lastID']
     except:
         lastID = 0
-    neueMeldungen = serializers.serialize("json", Meldung.objects.filter(Einsatz=einsatz).filter(pk__gt=lastID))
-    #neueMeldungen = { 'error': 'Fehler in der Verarbeitung'}
+    neueMeldungen = serializers.serialize("json", Meldung.objects.select_related().filter(Einsatz=einsatz).filter(pk__gt=lastID))
     return JsonResponse(neueMeldungen, safe=False)
-    #.filter(Nummer__gt=lastID))
 
 
 def summe_Personal(request, einsatz_id):

@@ -90,7 +90,15 @@
 				<form name="neue_Meldung" action="{% url 'doku:neueMeldung' einsatz.Nummer %}" method="post" autocomplete="off">
 					{% csrf_token %}
 					<input hidden class="do-not-show" autocomplete="false">
-					<input name="Inhalt" placeholder="Neue Meldung" autofocus required/>
+					<select id="MeldungZug" name="Zug" onchange="rememberZug(this)">
+						<option value="" disabled selected>Zugauswahl</option>
+						<option value="">Kein Zug</option>
+						{% for Zug in alle_Zuege %}
+							<option value="{{ Zug.Name }}: ">{{ Zug.Name }}</option>
+						{% endfor %}
+					</select>
+					<input id="MeldungInhalt" name="Inhalt" placeholder="Neue Meldung" autofocus required/>
+					<div class="spacer"></div>
 					<div class="checkboxdiv"><label class="container">
 						<input name="Wichtig" type="checkbox">
 						<span class="checkmark">X</span>
@@ -164,7 +172,7 @@
     {% if einstellungen.Lagekarten %}
 	<h2 class="do-not-print">Sonstiges</h2>
 	<div class="minimize-button active">-</div>
-	<div class="minimize-this do-not-print" style="display:block;">
+	<div class="minimize-this do-not-print">
 		<div class="Toolbox">
 			<a target="_blank" href="{% url 'doku:lagekarte' einsatz.Nummer %}"><button>Lagekarten</button></a>
 			<!--<a target="_blank" href=""><button>FeuerOn Infos</button></a>-->
