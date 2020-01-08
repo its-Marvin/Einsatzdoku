@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from datetime import datetime, timezone
+import pytz
 
 
 class Meldung(models.Model):
@@ -25,7 +26,7 @@ class Meldung(models.Model):
 
     def getTimeOrDate(self):
         if self.Erstellt.date() == datetime.now().date():
-            return self.Erstellt.strftime('%H:%M')
+            return self.Erstellt.astimezone(pytz.timezone("Europe/Berlin")).strftime('%H:%M')
         else:
             return self.getDateCreated() + " " + self.getTimeCreated()
 
