@@ -29,7 +29,7 @@ ALLOWED_HOSTS = ['*']
 
 # SITE AFTER LOGIN
 LOGIN_REDIRECT_URL = '/doku'
-LOGOUT_REDIRECT_URL = '/doku'
+LOGOUT_REDIRECT_URL = '/doku/Benutzer/login'
 
 
 # Application definition
@@ -123,3 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Logout on browser close
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 28800
