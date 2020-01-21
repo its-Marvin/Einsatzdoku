@@ -20,9 +20,23 @@ html {
 * {
   box-sizing: border-box;
 }
+
+::-webkit-scrollbar {
+    width: 1px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--highlight-text-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--highlight-color);
+}
+
 div.Titel {
 	display: none;
 }
+
 div.header {
 	float: left;
 	width: 50%;
@@ -30,6 +44,7 @@ div.header {
 	padding-left: 1%;
 	padding-right: 1%;
 }
+
 div.content { width: 100%; }
 
 .no-smartphone {display: none;}
@@ -39,6 +54,9 @@ div.content { width: 100%; }
 		height: 10%;
 		background-color: var(--sec-bg-color);
 		border: 3px solid var(--main-bg-color);
+		position: sticky;
+		top: 0;
+		z-index: 10;
 	}
 	div.header {
 		font-size: 100%;
@@ -61,6 +79,23 @@ div.content { width: 100%; }
 	.no-smartphone {
 	    display: block;
 	}
+
+	.linkesModul	{
+		width: 20% !important;
+	}
+
+	.mittleresModul {
+		width: 60% !important;
+	}
+
+	.rechtesModul {
+		width: 20% !important;
+	}
+
+	.Modul.rechtesModul, .Modul.mittleresModul, .Modul.linkesModul {
+	    overflow: auto;
+	    height: 90%;
+	}
 }
 
 div.Modul {
@@ -74,19 +109,6 @@ div.Modul {
 	border: 3px solid var(--main-bg-color);
 	float: left;
 	width: 100%;
-}
-@media only screen and (min-width: 1000px) {
-	.linkesModul	{
-		width: 20% !important;
-	}
-
-	.mittleresModul {
-		width: 60% !important;
-	}
-
-	.rechtesModul {
-		width: 20% !important;
-	}
 }
 
 @media only screen and (min-width: 1400px) {
@@ -179,7 +201,10 @@ li b {float: right;}
 
 .Wichtig {
 	background-color: var(--highlight-color) !important;
-	color: var(--highlight-text-color);
+	color: var(--highlight-text-color) !important;
+}
+.Training {
+    background-color: #009900 !important;
 }
 
 .SummePersonal div {
