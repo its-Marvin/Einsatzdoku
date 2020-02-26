@@ -211,6 +211,8 @@ def neues_Fahrzeug(request, einsatz_id):
         gruppenfuehrer = int(besatzung.split("/")[1])
         mannschaft = int(besatzung.split("/")[2])
         atemschutz = request.POST.get('Atemschutz', 0)
+        if atemschutz == "":
+            atemschutz = 0
     except:
         return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
     else:
