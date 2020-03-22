@@ -16,7 +16,9 @@
 			<b>Einsatznummer:</b><br>
 				{% if autor and not einsatz.extNummer %}
 					<div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
-						<input name="extENr" placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
+						<input name="extENr"
+							   placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}
+							   value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
 					<script>
 						$("#eNr").focusout(function(){
 							var einsatznummer = $("input[name='extENr']").val();
@@ -32,7 +34,11 @@
 			<b>Einsatzleiter:</b><br>
 				{% if autor and not einsatz.Einsatzleiter %}
 					<div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
-						<input name="einsatzleiter" placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}value="{{ einsatz.Einsatzleiter }}"{% endif %} autocomplete="false"></div>
+						<input name="einsatzleiter"
+							   placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}
+							   value="{{ einsatz.Einsatzleiter }}"{% endif %}
+							   autocomplete="false">
+					</div>
 					<script>
 						$("#einsatzleiter").focusout(function(){
 							var einsatzleiter = $("input[name='einsatzleiter']").val();
@@ -41,18 +47,30 @@
 						})
 					</script>
 				{% else %}
-					&nbsp;&nbsp;&nbsp;{% if einsatz.Einsatzleiter %}{{ einsatz.Einsatzleiter }}{% else %}Kein Einsatzleiter eingetragen!{% endif %}<br>
+					&nbsp;&nbsp;&nbsp;{% if einsatz.Einsatzleiter %}
+						{{ einsatz.Einsatzleiter }}
+					{% else %}
+						Kein Einsatzleiter eingetragen!
+					{% endif %}
+					<br>
 				{% endif %}
 			{% endif %}
 			<b>Einsatzstichwort:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Stichwort }}<br>
-			<b>Adresse:</b><br>&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3">{{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}</a><br>
+			<b>Adresse:</b><br>&nbsp;&nbsp;&nbsp;
+			<a target="_blank"
+			   href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3">
+				{{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}
+				{% endif %}</a><br>
 			<b>Einsatzbeginn:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Erstellt }}<br>
 			{% if einsatz.Ende %}
 				<b>Einsatzende:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Ende }}<br>
 			{% endif %}
 			&nbsp;
 			{% if autor and not einsatz.Ende %}
-				<form name="einsatzende" action="{% url 'doku:einsatzende' einsatz.Nummer %}" method="post" autocomplete="off">
+				<form name="einsatzende"
+					  action="{% url 'doku:einsatzende' einsatz.Nummer %}"
+					  method="post"
+					  autocomplete="off">
 					{% csrf_token %}
 					<div class="checkboxdiv"><label class="container">
 						<input name="sicher" type="checkbox" required>
@@ -67,7 +85,11 @@
 		<div class="minimize-button active">-</div>
 		<div class="minimize-this" style="display:block;">
 			{% if autor and not einsatz.Ende %}
-				<form id="neue_Person" name="neue_Person" action="{% url 'doku:neuePerson' einsatz.Nummer %}" method="post" autocomplete="off">
+				<form id="neue_Person"
+					  name="neue_Person"
+					  action="{% url 'doku:neuePerson' einsatz.Nummer %}"
+					  method="post"
+					  autocomplete="off">
 					{% csrf_token %}
 					<input hidden class="do-not-show" autocomplete="false">
 					<input name="Nachname" placeholder="Nachname" required/>
@@ -80,7 +102,13 @@
 			{% if alle_Personen %}
 				<ul>
 				{% for person in alle_Personen %}
-					<li class="Tooltip Person">{{ person }}{% if person.Notizen %}<ul class="tooltiptext print"><li>{{ person.Notizen }}</li></ul>{% endif %}</li>
+					<li class="Tooltip Person">
+						{{ person }}{% if person.Notizen %}
+						<ul class="tooltiptext print">
+							<li>{{ person.Notizen }}</li>
+						</ul>
+						{% endif %}
+					</li>
 				{% endfor %}
 				</ul>
 			{% endif %}
@@ -203,7 +231,10 @@
 	<div class="minimize-this" style="display:block;">
 		{% if autor and not einsatz.Ende %}
 			{% if alle_Fahrzeuge %}
-				<form name="neues_Fahrzeug" action="{% url 'doku:neuesFahrzeug' einsatz.Nummer %}" method="post" autocomplete="off">
+				<form name="neues_Fahrzeug"
+					  action="{% url 'doku:neuesFahrzeug' einsatz.Nummer %}"
+					  method="post"
+					  autocomplete="off">
 					{% csrf_token %}
 					<input hidden class="do-not-show" autocomplete="false">
 					<select name="Name">
