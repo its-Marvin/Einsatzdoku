@@ -93,7 +93,7 @@ class Fahrzeug(models.Model):
     Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT, editable=False)
 
     def __str__(self):
-        return str(self.Name.Funkname) + " - Besatzung: " + str(self.Zugfuehrer) + "/" + str(
+        return str(self.Name.Funkname) + " - Stärke: " + str(self.Zugfuehrer) + "/" + str(
             self.Gruppenfuehrer) + "/" + str(self.Mannschaft) + " (" + str(self.Atemschutz) + " AGT)"
 
 
