@@ -3,7 +3,11 @@
 
 {% block content %}
 {% if einsatz %}
-	<script>document.title = "Einsatzdokumentation - #{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %} {{ einsatz.Stichwort.Kurzname }} {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}";</script>
+	<script>
+		document.title = "Einsatzdokumentation - #{% if einsatz.extNummer %}
+		{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %} {{ einsatz.Stichwort.Kurzname }}
+		{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}";
+	</script>
 	<div class="Modul linkesModul">
 		<h2>Grunddaten</h2>
 		<div class="minimize-button active">-</div>
@@ -114,11 +118,21 @@
 		{% if alle_Meldungen %}
 			<ul id="Meldungsliste" class="do-not-print">
 			{% for Meldung in alle_Meldungen %}
-				<li class="Meldung {% if Meldung.Wichtig %}Wichtig {% endif %}Tooltip" id="{{ Meldung.pk }}">{{ Meldung.getTimeOrDate }} - {{ Meldung.Inhalt }} <ul class="tooltiptext print"><li>Verfasst von {{ Meldung.Autor }} am {{ Meldung.Erstellt }}</li></ul></li>
+				<li class="Meldung {% if Meldung.Wichtig %}Wichtig {% endif %}Tooltip" id="{{ Meldung.pk }}">
+					{{ Meldung.getTimeOrDate }} - {{ Meldung.Inhalt }}
+					<ul class="tooltiptext print">
+						<li>Verfasst von {{ Meldung.Autor }} am {{ Meldung.Erstellt }}</li>
+					</ul>
+				</li>
 			{% endfor %}
 			</ul>
 			<table class="do-not-show">
-				<tr><th class="spalte1">Meldungstext</th><th class="spalte2">Autor</th><th class="spalte3h">Zeitpunkt</th><th class="spalte4">FEL</th></tr>
+				<tr>
+					<th class="spalte1">Meldungstext</th>
+					<th class="spalte2">Autor</th>
+					<th class="spalte3h">Zeitpunkt</th>
+					<th class="spalte4">FEL</th>
+				</tr>
 				{% for Meldung in alle_Meldungen %}
 					<tr>
 						<td class="spalte1">{{ Meldung.Inhalt }}{% if Meldung.Wichtig %}</b>{% endif %}</td>
@@ -206,7 +220,12 @@
 		{% if eingesetzte_Fahrzeuge %}
 			<ul id="Fahrzeugliste">
 			{% for Fahrzeug in eingesetzte_Fahrzeuge %}
-				<li class="tooltip Fahrzeug">{{ Fahrzeug }}</li>
+				<li class="tooltip Fahrzeug">
+					{{ Fahrzeug }}
+					<ul class="tooltiptext print">
+						<li>{{Fahrzeug.Name.Typ}} - {{ Fahrzeug.Name.Ort }}</li>
+					</ul>
+				</li>
 			{% endfor %}
 			</ul>
 		{% endif %}
