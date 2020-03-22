@@ -10,16 +10,32 @@
 		<div class="minimize-this" style="display:block;">
 			{% if einstellungen.Einsatznummer %}
 			<b>Einsatznummer:</b><br>
-				{% if autor and not einsatz.Ende %}
-					<div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span><input name="extENr" placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
+				{% if autor and not einsatz.extNummer %}
+					<div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
+						<input name="extENr" placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
+					<script>
+						$("#eNr").focusout(function(){
+							var einsatznummer = $("input[name='extENr']").val();
+							let url = "{% url 'doku:einsatznummer' einsatz.Nummer %}";
+							$.post( url , { extENr : einsatznummer } );
+						})
+					</script>
 				{% else %}
 					&nbsp;&nbsp;&nbsp;{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %}<br>
 				{% endif %}
 			{% endif %}
 			{% if einstellungen.Einsatzleiter %}
 			<b>Einsatzleiter:</b><br>
-				{% if autor and not einsatz.Ende %}
-					<div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span><input name="einsatzleiter" placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}value="{{ einsatz.Einsatzleiter }}"{% endif %} autocomplete="false"></div>
+				{% if autor and not einsatz.Einsatzleiter %}
+					<div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
+						<input name="einsatzleiter" placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}value="{{ einsatz.Einsatzleiter }}"{% endif %} autocomplete="false"></div>
+					<script>
+						$("#einsatzleiter").focusout(function(){
+							var einsatzleiter = $("input[name='einsatzleiter']").val();
+							let url = "{% url 'doku:einsatzleiter' einsatz.Nummer %}";
+							$.post( url , { einsatzleiter : einsatzleiter } );
+						})
+					</script>
 				{% else %}
 					&nbsp;&nbsp;&nbsp;{% if einsatz.Einsatzleiter %}{{ einsatz.Einsatzleiter }}{% else %}Kein Einsatzleiter eingetragen!{% endif %}<br>
 				{% endif %}
@@ -40,18 +56,6 @@
 					</label></div>
 					<input type="submit" class="check" value="Einsatzende">
 				</form>
-				<script>
-					$("#eNr").focusout(function(){
-						var einsatznummer = $("input[name='extENr']").val();
-						let url = "{% url 'doku:einsatznummer' einsatz.Nummer %}";
-						$.post( url , { extENr : einsatznummer } );
-					})
-					$("#einsatzleiter").focusout(function(){
-						var einsatzleiter = $("input[name='einsatzleiter']").val();
-						let url = "{% url 'doku:einsatzleiter' einsatz.Nummer %}";
-						$.post( url , { einsatzleiter : einsatzleiter } );
-					})
-				</script>
 			{% endif %}
 		</div>
 		{% if einstellungen.Personen %}
