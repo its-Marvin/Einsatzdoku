@@ -14,6 +14,7 @@ class Meldung(models.Model):
     Erstellt = models.DateTimeField(auto_now_add=True, editable=False)
     Autor = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, editable=False)
     Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT, editable=False)
+    Zug = models.ForeignKey('Zug', on_delete=models.SET_NULL, null=True, default=None, blank=True)
 
     def __str__(self):
         return self.Erstellt.strftime('%H:%M:%S') + " - " + str(self.Inhalt) + " [" + str(self.Autor) + "]"
@@ -61,6 +62,7 @@ class Einsatz(models.Model):
 
 class Zug(models.Model):
     Name = models.CharField(max_length=50, null=False)
+    Farbe = models.CharField(max_length=7, default="#bbbbbb")
 
     def __str__(self):
         return str(self.Name)

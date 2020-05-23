@@ -35,13 +35,6 @@ $(".Person").click(function(e) {
 	formObject.elements['Notizen'].focus();
 });
 
-// Farbgebung der Meldungen
-// TODO Farben variabel und auf Basis der Züge
-$(".Meldung").each(function(i, obj){
-    if($(this).text().indexOf('West:') > -1) {$(this).css("background-color","#87CEFA");$(this).css("color","#000000");};
-    if($(this).text().indexOf('Ost:') > -1) {$(this).css("background-color","#4682B4");};
-})
-
 // Zugauswahl für Meldungen merken
 function rememberZug(obj){
     localStorage.setItem("letzterZug", obj.options[obj.selectedIndex].value);

@@ -54,7 +54,7 @@ def einsatz(request, einsatz_id):
         einsatz = None
     aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
     alle_Meldungen = Meldung.objects.order_by('-Erstellt').filter(Einsatz=einsatz_id)
-    eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz_id)
+    eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz_id).order_by('Name__Zug', 'Name__Ort__Langname', 'Name__Funkname')
     alle_Personen = Person.objects.filter(Einsatz=einsatz_id)
     alle_Fahrzeuge = Fahrzeuge.objects.filter()
     alle_Zuege = Zug.objects.filter()
@@ -171,12 +171,17 @@ def neue_Meldung(request, einsatz_id):
     except:
         return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
     else:
+        try:
+            zug = request.POST.get('Zug', None)[:-2]
+            zug = Zug.objects.get(Name=zug)
+        except:
+            zug = None
         if request.POST.get('Wichtig') is None:
             wichtig = False
         else:
             wichtig = True
         #Neue Meldung anlegen
-        m = Meldung(Inhalt=inhalt, Wichtig=wichtig, Einsatz=einsatz, Autor=request.user)
+        m = Meldung(Inhalt=inhalt, Wichtig=wichtig, Einsatz=einsatz, Autor=request.user, Zug=zug)
         m.save()
         return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
 

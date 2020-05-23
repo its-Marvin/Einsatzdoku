@@ -4,9 +4,9 @@
 {% block content %}
 {% if einsatz %}
 	<script>
-		document.title = "Einsatzdokumentation - #{% if einsatz.extNummer %}
+		document.title = `Einsatzdokumentation - #{% if einsatz.extNummer %}
 		{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %} {{ einsatz.Stichwort.Kurzname }}
-		{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}";
+		{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}`;
 	</script>
 	<div class="Modul linkesModul">
 		<h2>Grunddaten</h2>
@@ -146,8 +146,11 @@
 		{% if alle_Meldungen %}
 			<ul id="Meldungsliste" class="do-not-print">
 			{% for Meldung in alle_Meldungen %}
-				<li class="Meldung {% if Meldung.Wichtig %}Wichtig {% endif %}Tooltip" id="{{ Meldung.pk }}">
-					{{ Meldung.getTimeOrDate }} - {{ Meldung.Inhalt }}
+				<li
+					class="Meldung {% if Meldung.Wichtig %}Wichtig {% endif %}Tooltip"
+					id="{{ Meldung.pk }}"
+					{% if not Meldung.Wichtig %}style="background-color:{{ Meldung.Zug.Farbe }};"{% endif %}>
+						{{ Meldung.getTimeOrDate }} - {{ Meldung.Inhalt }}
 					<ul class="tooltiptext print">
 						<li>Verfasst von {{ Meldung.Autor }} am {{ Meldung.Erstellt }}</li>
 					</ul>
@@ -251,7 +254,7 @@
 		{% if eingesetzte_Fahrzeuge %}
 			<ul id="Fahrzeugliste">
 			{% for Fahrzeug in eingesetzte_Fahrzeuge %}
-				<li class="tooltip Fahrzeug">
+				<li class="tooltip Fahrzeug" style="background-color: {{ Fahrzeug.Name.Zug.Farbe }};">
 					{{ Fahrzeug }}
 					<ul class="tooltiptext print">
 						<li>{{Fahrzeug.Name.Typ}} - {{ Fahrzeug.Name.Ort }}</li>
