@@ -8,6 +8,10 @@
   --text-color: #fff;
   --text-inverse-color: #000;
 }
+body {
+    background-color: var(--main-bg-color);
+	color: var(--text-color);
+}
 
 html {
 	margin: 0px;
@@ -185,14 +189,11 @@ li li {
     padding-bottom: 0;
     padding-right: 0;
 }
-.tooltiptext li {
-	margin: 0px;
-	background-color: var(--element-color);
-	color: var(--text-color);
-}
-ul.tooltiptext {
-	padding: 0px !important;
-	margin: 0px;
+.tooltip-inner {
+    font-size: 150%;
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
+    border: 1px solid black;
 }
 li.Person {
 	cursor: pointer;
@@ -209,47 +210,6 @@ li b {float: right;}
 
 .SummePersonal div {
     float: right;
-}
-
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 60%;
-  background-color: var(--element-color);
-  color: var(--text-color);
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 0px;
-  border: 2px solid var(--main-bg-color);
-
-  /* Position the tooltip text */
-  position: absolute;
-  z-index: 1;
-  top: 95%;
-  left: 15%;
-  margin-left: -60px;
-
-  /* Fade in tooltip */
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 0%;
-  left: 50%;
-  margin-left: -5px;
-  /* border-width: 5px; */
-  /* border-style: solid; */
-  /* border-color: var(--element-color) transparent transparent transparent; */
-}
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
 }
 
 .dropbtn {
@@ -334,6 +294,9 @@ input[type=submit]:hover {
     background-color: var(--sec-bg-color);
     cursor: pointer;
 }
+input {
+    line-height: 1;
+}
 
 /* ###################### Custom checkbox #########################*/
 .checkboxdiv { 
@@ -374,7 +337,6 @@ input[type=submit]:hover {
   width: 29px;
   background-color: var(--element-color);
   border: 1px solid var(--text-inverse-color);
-  padding-top: 2px;
   text-align: center;
 }
 /* On mouse-over, add a grey background color */
@@ -391,6 +353,7 @@ input[type=submit]:hover {
   content: "";
   position: absolute;
   display: none;
+  font-size: 200%;
 }
 /* Show the checkmark when checked */
 .container input:checked ~ .checkmark:after {
@@ -400,8 +363,8 @@ input[type=submit]:hover {
 .container .checkmark:after {
   left: 9px;
   top: 5px;
-  width: 5px;
-  height: 10px;
+  width: 9px;
+  height: 15px;
   border: solid var(--text-color);
   border-width: 0 3px 3px 0;
   -webkit-transform: rotate(45deg);

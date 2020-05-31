@@ -1,27 +1,29 @@
 // Slash automatisch nach jedem Zeichen einfügen (Stärkemeldung)
-document.querySelector("input[name='Besatzung']").oninput = function () {
+if($("input[name='Besatzung']").length){
+    document.querySelector("input[name='Besatzung']").oninput = function () {
 		var foo = this.value.split("/").join("");
 		if (foo.length > 0) {
 			foo = foo.match(new RegExp('.{1,1}', 'g')).join("/");
 		}
 		this.value = foo;
 	};
-// In nächstes Input Element springen, wenn vollständig ausgefüllt
-document.querySelector("input[name='Besatzung']").onkeyup = function(e) {
-	var target = e.srcElement || e.target;
-	var maxLength = parseInt(target.attributes["maxlength"].value, 10);
-	var myLength = target.value.length;
-	if (myLength >= maxLength) {
-		var next = target;
-		while (next = next.nextElementSibling) {
-			if (next == null)
-				break;
-			if (next.tagName.toLowerCase() === "input") {
-				next.focus();
-				break;
-			}
-		}
-	}
+    // In nächstes Input Element springen, wenn vollständig ausgefüllt
+    document.querySelector("input[name='Besatzung']").onkeyup = function(e) {
+        var target = e.srcElement || e.target;
+        var maxLength = parseInt(target.attributes["maxlength"].value, 10);
+        var myLength = target.value.length;
+        if (myLength >= maxLength) {
+            var next = target;
+            while (next = next.nextElementSibling) {
+                if (next == null)
+                    break;
+                if (next.tagName.toLowerCase() === "input") {
+                    next.focus();
+                    break;
+                }
+            }
+        }
+    }
 }
 
 // Ausfüllen des Formulars für neue Person, wenn vorhandene Person angeklickt wird
@@ -42,4 +44,6 @@ function rememberZug(obj){
 }
 
 // letzte Auswahl wiederherstellen
-document.getElementById("MeldungZug").value = localStorage.getItem("letzterZug");
+if($("#MeldungZug").length){
+    document.getElementById("MeldungZug").value = localStorage.getItem("letzterZug");
+}

@@ -14,25 +14,28 @@
 		<div class="minimize-this" style="display:block;">
 			{% if einstellungen.Einsatznummer %}
 			<b>Einsatznummer:</b><br>
-				{% if autor and not einsatz.extNummer %}
-					<div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
-						<input name="extENr"
-							   placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}
-							   value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
-					<script>
-						$("#eNr").focusout(function(){
-							var einsatznummer = $("input[name='extENr']").val();
-							let url = "{% url 'doku:einsatznummer' einsatz.Nummer %}";
-							$.post( url , { extENr : einsatznummer } );
-						})
-					</script>
+				{% if not einsatz.Ende or not einsatz.extNummer %}
+					{% if autor %}
+						<div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
+							<input name="extENr"
+								   placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}
+								   value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
+						<script>
+							$("#eNr").focusout(function(){
+								var einsatznummer = $("input[name='extENr']").val();
+								let url = "{% url 'doku:einsatznummer' einsatz.Nummer %}";
+								$.post( url , { extENr : einsatznummer } );
+							})
+						</script>
+					{% endif %}
 				{% else %}
 					&nbsp;&nbsp;&nbsp;{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %}<br>
 				{% endif %}
+
 			{% endif %}
 			{% if einstellungen.Einsatzleiter %}
 			<b>Einsatzleiter:</b><br>
-				{% if autor and not einsatz.Einsatzleiter %}
+				{% if autor and not einsatz.Ende %}
 					<div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
 						<input name="einsatzleiter"
 							   placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}
@@ -58,9 +61,12 @@
 			<b>Einsatzstichwort:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Stichwort }}<br>
 			<b>Adresse:</b><br>&nbsp;&nbsp;&nbsp;
 			<a target="_blank"
+			   class="do-not-print"
 			   href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3">
 				{{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}
-				{% endif %}</a><br>
+				{% endif %}<br></a>
+			<span class="do-not-show">{{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}
+				{% endif %}<br /></span>
 			<b>Einsatzbeginn:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Erstellt }}<br>
 			{% if einsatz.Ende %}
 				<b>Einsatzende:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Ende }}<br>
@@ -98,16 +104,19 @@
 					<input name="Notizen" placeholder="Notizen (z.B. Adresse)"/>
 					<input type="submit" value="Hinzufügen / Ändern">
 				</form>
+			{% else %}
+				&nbsp;<br />&nbsp;<br />&nbsp;
 			{% endif %}
 			{% if alle_Personen %}
 				<ul>
 				{% for person in alle_Personen %}
-					<li class="Tooltip Person">
-						{{ person }}{% if person.Notizen %}
-						<ul class="tooltiptext print">
+					<li class="Person"
+						{% if person.Notizen %}data-toggle="tooltip" title="{{ person.Notizen }}"{% endif %}
+						data-placement="bottom">
+						{{ person }}
+						<ul class="do-not-show">
 							<li>{{ person.Notizen }}</li>
 						</ul>
-						{% endif %}
 					</li>
 				{% endfor %}
 				</ul>
@@ -142,18 +151,19 @@
 					<input type="submit" class="check" value="Neue Meldung hinzufügen">
 				</form>
 			</div>
+		{% else %}
+				&nbsp;<br />&nbsp;<br />
 		{% endif %}
 		{% if alle_Meldungen %}
 			<ul id="Meldungsliste" class="do-not-print">
 			{% for Meldung in alle_Meldungen %}
 				<li
-					class="Meldung {% if Meldung.Wichtig %}Wichtig {% endif %}Tooltip"
+					class="Meldung {% if Meldung.Wichtig %}Wichtig {% endif %}"
 					id="{{ Meldung.pk }}"
-					{% if not Meldung.Wichtig %}style="background-color:{{ Meldung.Zug.Farbe }};"{% endif %}>
+					{% if not Meldung.Wichtig %}style="background-color:{{ Meldung.Zug.Farbe }};"{% endif %}
+					data-toggle="tooltip" title="{{ Meldung.Autor.first_name }} {{ Meldung.Autor.last_name }} am {{ Meldung.Erstellt }}"
+					data-placement="bottom">
 						{{ Meldung.getTimeOrDate }} - {{ Meldung.Inhalt }}
-					<ul class="tooltiptext print">
-						<li>Verfasst von {{ Meldung.Autor }} am {{ Meldung.Erstellt }}</li>
-					</ul>
 				</li>
 			{% endfor %}
 			</ul>
@@ -167,7 +177,7 @@
 				{% for Meldung in alle_Meldungen %}
 					<tr>
 						<td class="spalte1">{{ Meldung.Inhalt }}{% if Meldung.Wichtig %}</b>{% endif %}</td>
-						<td class="spalte2">{{ Meldung.Autor }}</td>
+						<td class="spalte2">{{ Meldung.Autor.first_name }} {{ Meldung.Autor.last_name }}</td>
 						<td class="spalte3">{{ Meldung.Erstellt }}</td>
 						<td class="spalte4">{% if Meldung.Wichtig %}&#10004;{% else %}X{% endif %}</td>
 					</tr>
@@ -199,9 +209,9 @@
 							for (var i = 0; i < jsonResponse.length; i++){
 								var obj = jsonResponse[i];
 								if (obj.fields.Wichtig) {
-									$(".Meldung").first().before('<li class="Meldung Wichtig Tooltip" id="' + obj.pk + '">' + obj.fields.Erstellt + " - " + obj.fields.Inhalt + '<ul class="tooltiptext print"><li>Verfasst von ' + obj.fields.Autor + ' am ' + obj.fields.Erstellt + '</li></ul></li>');
+									$(".Meldung").first().before('<li class="Meldung Wichtig" id="' + obj.pk + '">' + obj.fields.Erstellt + " - " + obj.fields.Inhalt + '<ul class="print"><li>Verfasst von ' + obj.fields.Autor + ' am ' + obj.fields.Erstellt + '</li></ul></li>');
 								} else {
-									$(".Meldung").first().before('<li class="Meldung Tooltip" id="' + obj.pk + '">' + obj.fields.Erstellt + " - " + obj.fields.Inhalt + '<ul class="tooltiptext print"><li>Verfasst von ' + obj.fields.Autor + ' am ' + obj.fields.Erstellt + '</li></ul></li>');
+									$(".Meldung").first().before('<li class="Meldung" id="' + obj.pk + '">' + obj.fields.Erstellt + " - " + obj.fields.Inhalt + '<ul class="print"><li>Verfasst von ' + obj.fields.Autor + ' am ' + obj.fields.Erstellt + '</li></ul></li>');
 								}
 							}
 						},
@@ -224,6 +234,8 @@
 	<div class="minimize-this do-not-print">
 		<div class="Toolbox">
 			<a target="_blank" href="{% url 'doku:lagekarte' einsatz.Nummer %}"><button>Lagekarten</button></a>
+			<a target="_blank" href="{{ einstellungen.Hydranten }}"><button>Hydranten</button></a>
+			<a target="_blank" href="https://www.dgg.bam.de/quickinfo/de/"><button>Gefahrgut</button></a>
 			<!--<a target="_blank" href=""><button>FeuerOn Infos</button></a>-->
 		</div>
 	</div>
@@ -250,15 +262,16 @@
 					<input type="submit" value="Hinzufügen / Ändern">
 				</form>
 			{% endif %}
+		{% else %}
+				&nbsp;<br />&nbsp;<br />&nbsp;
 		{% endif %}
 		{% if eingesetzte_Fahrzeuge %}
 			<ul id="Fahrzeugliste">
 			{% for Fahrzeug in eingesetzte_Fahrzeuge %}
-				<li class="tooltip Fahrzeug" style="background-color: {{ Fahrzeug.Name.Zug.Farbe }};">
+				<li class="Fahrzeug" style="background-color: {{ Fahrzeug.Name.Zug.Farbe }};"
+					data-toggle="tooltip" title="{{Fahrzeug.Name.Typ}} - {{ Fahrzeug.Name.Ort }}"
+					data-placement="bottom">
 					{{ Fahrzeug }}
-					<ul class="tooltiptext print">
-						<li>{{Fahrzeug.Name.Typ}} - {{ Fahrzeug.Name.Ort }}</li>
-					</ul>
 				</li>
 			{% endfor %}
 			</ul>
@@ -286,7 +299,8 @@
 							let sum = jsonResponse[zug].zugfuehrer;
 							sum += jsonResponse[zug].gruppenfuehrer;
 							sum += jsonResponse[zug].mannschaft;
-							ausgabe += "<center>Insgesamt " + sum.toString()  + " Einsatzkräfte</center>"
+							ausgabe += "<center class='do-not-print'>Insgesamt " + sum.toString()  + " Einsatzkräfte</center>"
+							ausgabe += "<span class='do-not-show'>Insgesamt " + sum.toString()  + " Einsatzkräfte</span>"
 						}
 						ausgabe += "</li>";
 						$("#Fahrzeugliste").prepend(ausgabe);

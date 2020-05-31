@@ -151,6 +151,7 @@ class SingletonModel(models.Model):
 
 class Einstellungen(SingletonModel):
     Name = models.CharField(max_length=50, null=False, default="Einsatzverwaltung")
+    Hydranten = models.CharField(max_length=1000, null=False, default="http://openfiremap.org/")
     Lagekarten = models.BooleanField(default=True)
     Personen = models.BooleanField(default=True)
     Fahrzeuge = models.BooleanField(default=True)
