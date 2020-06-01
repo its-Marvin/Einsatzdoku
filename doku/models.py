@@ -47,6 +47,9 @@ class Einsatz(models.Model):
     def __str__(self):
         return str(self.Nummer) + "_" + self.Stichwort.Kurzname + "_" + self.Ort.Kurzname
 
+    def getYear(self):
+        return self.Erstellt.astimezone(pytz.timezone("Europe/Berlin")).strftime('%Y')
+
     def getDuration(self):
         if self.Ende:
             return self.Ende - self.Erstellt

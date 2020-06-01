@@ -17,6 +17,11 @@ def index(request):
     alle_Stichworte = Stichwort.objects.order_by('Kurzname')
     alle_Orte = Ort.objects.order_by('Kurzname')
     autor = request.user if request.user.is_authenticated else None
+    jahre = []
+    for einsatz in alle_Einsaetze:
+        if einsatz.Ende:
+            if einsatz.getYear() not in jahre:
+                jahre.append(einsatz.getYear())
     context = {
         'training': False,
         'einstellungen': einstellungen,
@@ -24,6 +29,7 @@ def index(request):
         'alle_Einsaetze': alle_Einsaetze,
         'alle_Stichworte': alle_Stichworte,
         'alle_Orte': alle_Orte,
+        'jahre': sorted(jahre, reverse=True),
     }
     return render(request, 'doku/index.html', context)
 

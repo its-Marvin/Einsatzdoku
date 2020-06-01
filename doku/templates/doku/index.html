@@ -6,7 +6,7 @@
 		{% if autor %}
 		<h2>Neuer Einsatz</h2>
 		<div class="minimize-button active">-</div>
-		<div class="minimize-this">
+		<div class="minimize-this" style="display:block;">
 			<div class="Formular">
 				<form name="neuer_Einsatz"
 					  action="{% if training %}{% url 'doku:neuesTraining' %}{% else %}{% url 'doku:neuerEinsatz' %}{% endif %}"
@@ -49,7 +49,7 @@
 	<div class="Modul mittleresModul">
 		<h2>aktive Einsätze</h2>
 		<div class="minimize-button active">-</div>
-		<div class="minimize-this">&nbsp;
+		<div class="minimize-this" style="display:block;">&nbsp;
 			<ul>
 			{% for einsatz in alle_Einsaetze %}
 				{% if not einsatz.Ende %}
@@ -68,40 +68,52 @@
 				</a>
 				{% endif %}
 			{% endfor %}
-			</u>
+			</ul>
 		</div>
 	</div>
 	<div class="Modul rechtesModul">
 		<h2>beendete Einsätze</h2>
-		<div class="minimize-button active">-</div>
-		<div class="minimize-this">&nbsp;
-			<ul>
-			{% for einsatz in alle_Einsaetze %}
-				{% if einsatz.Ende %}
-				<a href="{% url 'doku:einsatz' einsatz.Nummer %}">
-				<li>{{ einsatz.Stichwort.Kurzname }}
-					{% if einsatz.OrtFrei %}
-						{{ einsatz.OrtFrei }}
-					{% else %}
-						{{ einsatz.Ort.Langname }}
+		&nbsp;<br />&nbsp;<br />
+		{% for jahr in jahre %}
+			<h2>{{ jahr }}</h2>
+			{% if forloop.first	%}
+				<div class="minimize-button">-</div>
+				<div class="minimize-this" style="display:block;">&nbsp;
+			{% else %}
+				<div class="minimize-button">+</div>
+				<div class="minimize-this" style="display:none;">
+			{% endif %}
+				&nbsp;<br />&nbsp;<br />
+				<ul>
+				{% for einsatz in alle_Einsaetze %}
+					{% if einsatz.Ende %}
+					{% if einsatz.getYear == jahr %}
+					<a href="{% url 'doku:einsatz' einsatz.Nummer %}">
+					<li>{{ einsatz.Stichwort.Kurzname }}
+						{% if einsatz.OrtFrei %}
+							{{ einsatz.OrtFrei }}
+						{% else %}
+							{{ einsatz.Ort.Langname }}
+						{% endif %}
+						{% if einsatz.extNummer %}
+							<b>#{{ einsatz.extNummer }}</b>
+						{% endif %}
+						<ul>
+							<li>
+								Von: {{ einsatz.Erstellt }}
+							</li>
+							<li>
+								Bis: {{ einsatz.Ende }}
+							</li>
+						</ul>
+					</li>
+					</a>
 					{% endif %}
-					{% if einsatz.extNummer %}
-						<b>#{{ einsatz.extNummer }}</b>
 					{% endif %}
-					<ul>
-						<li>
-							Von: {{ einsatz.Erstellt }}
-						</li>
-						<li>
-							Bis: {{ einsatz.Ende }}
-						</li>
-					</ul>
-				</li>
-				</a>
-				{% endif %}
-			{% endfor %}
-			</ul>
-		</div>
+				{% endfor %}
+				</ul>
+			</div>
+		{% endfor %}
 	</div>
 	{% endif %}
 {% endblock %}
