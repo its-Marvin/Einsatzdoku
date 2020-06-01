@@ -1,0 +1,116 @@
+<div class="Modul linkesModul">
+    <h2>Grunddaten</h2>
+    <div class="minimize-button active">-</div>
+    <div class="minimize-this" style="display:block;">
+        {% if einstellungen.Einsatznummer %}
+        <b>Einsatznummer:</b><br>
+            {% if not einsatz.Ende or not einsatz.extNummer %}
+                {% if autor %}
+                    <div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
+                        <input name="extENr"
+                               placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}
+                               value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
+                    <script>
+                        $("#eNr").focusout(function(){
+                            var einsatznummer = $("input[name='extENr']").val();
+                            let url = "{% url 'doku:einsatznummer' einsatz.Nummer %}";
+                            $.post( url , { extENr : einsatznummer } );
+                        })
+                    </script>
+                {% endif %}
+            {% else %}
+                &nbsp;&nbsp;&nbsp;{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %}<br>
+            {% endif %}
+
+        {% endif %}
+        {% if einstellungen.Einsatzleiter %}
+        <b>Einsatzleiter:</b><br>
+            {% if autor and not einsatz.Ende %}
+                <div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
+                    <input name="einsatzleiter"
+                           placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}
+                           value="{{ einsatz.Einsatzleiter }}"{% endif %}
+                           autocomplete="false">
+                </div>
+                <script>
+                    $("#einsatzleiter").focusout(function(){
+                        var einsatzleiter = $("input[name='einsatzleiter']").val();
+                        let url = "{% url 'doku:einsatzleiter' einsatz.Nummer %}";
+                        $.post( url , { einsatzleiter : einsatzleiter } );
+                    })
+                </script>
+            {% else %}
+                &nbsp;&nbsp;&nbsp;{% if einsatz.Einsatzleiter %}
+                    {{ einsatz.Einsatzleiter }}
+                {% else %}
+                    Kein Einsatzleiter eingetragen!
+                {% endif %}
+                <br>
+            {% endif %}
+        {% endif %}
+        <b>Einsatzstichwort:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Stichwort }}<br>
+        <b>Adresse:</b><br>&nbsp;&nbsp;&nbsp;
+        <a target="_blank"
+           class="do-not-print"
+           href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3">
+            {{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}
+            {% endif %}<br></a>
+        <span class="do-not-show">{{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}
+            {% endif %}<br /></span>
+        <b>Einsatzbeginn:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Erstellt }}<br>
+        {% if einsatz.Ende %}
+            <b>Einsatzende:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Ende }}<br>
+        {% endif %}
+        &nbsp;
+        {% if autor and not einsatz.Ende %}
+            <form name="einsatzende"
+                  action="{% url 'doku:einsatzende' einsatz.Nummer %}"
+                  method="post"
+                  autocomplete="off">
+                {% csrf_token %}
+                <div class="checkboxdiv"><label class="container">
+                    <input name="sicher" type="checkbox" required>
+                    <span class="checkmark">X</span>
+                </label></div>
+                <input type="submit" class="check" value="Einsatzende">
+            </form>
+        {% endif %}
+    </div>
+    {% if einstellungen.Personen %}
+    <h2 {% if not alle_Personen %}class="do-not-print" {% endif %}>Beteiligte Personen</h2>
+    <div class="minimize-button active">-</div>
+    <div class="minimize-this" style="display:block;">
+        {% if autor and not einsatz.Ende %}
+            <form id="neue_Person"
+                  name="neue_Person"
+                  action="{% url 'doku:neuePerson' einsatz.Nummer %}"
+                  method="post"
+                  autocomplete="off">
+                {% csrf_token %}
+                <input hidden class="do-not-show" autocomplete="false">
+                <input name="Nachname" placeholder="Nachname" required/>
+                <input name="Vorname" placeholder="Vorname" required/>
+                <input name="Rolle" placeholder="Rolle" required/>
+                <input name="Notizen" placeholder="Notizen (z.B. Adresse)"/>
+                <input type="submit" value="Hinzufügen / Ändern">
+            </form>
+        {% else %}
+            &nbsp;<br />&nbsp;<br />&nbsp;
+        {% endif %}
+        {% if alle_Personen %}
+            <ul>
+            {% for person in alle_Personen %}
+                <li class="Person"
+                    {% if person.Notizen %}data-toggle="tooltip" title="{{ person.Notizen }}"{% endif %}
+                    data-placement="bottom">
+                    {{ person }}
+                    <ul class="do-not-show">
+                        <li>{{ person.Notizen }}</li>
+                    </ul>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
