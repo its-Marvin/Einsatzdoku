@@ -20,14 +20,14 @@ class Meldung(models.Model):
         return self.Erstellt.strftime('%H:%M:%S') + " - " + str(self.Inhalt) + " [" + str(self.Autor) + "]"
 
     def getTimeCreated(self):
-        return self.Erstellt.strftime('%H:%M')
+        return self.Erstellt.astimezone(pytz.timezone("Europe/Berlin")).strftime('%H:%M')
 
     def getDateCreated(self):
-        return self.Erstellt.strftime('%d %B %Y')
+        return self.Erstellt.astimezone(pytz.timezone("Europe/Berlin")).strftime('%d %B %Y')
 
     def getTimeOrDate(self):
         if self.Erstellt.date() == datetime.now().date():
-            return self.Erstellt.astimezone(pytz.timezone("Europe/Berlin")).strftime('%H:%M')
+            return self.getTimeCreated()
         else:
             return self.getDateCreated() + " " + self.getTimeCreated()
 
