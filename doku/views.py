@@ -7,7 +7,7 @@ from django.http import HttpResponseServerError
 import json
 import datetime
 
-from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug
+from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, Icon
 
 
 def index(request):
@@ -95,6 +95,7 @@ def lagekarte(request, einsatz_id):
         aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
         lagekarten = Lagekarte.objects.filter(Einsatz=einsatz_id).order_by('-Erstellt')
         autor = request.user if request.user.is_authenticated else None
+        icons = Icon.objects.all()
         context = {
             'training': einsatz.Training,
             'einstellungen': einstellungen,
@@ -102,6 +103,7 @@ def lagekarte(request, einsatz_id):
             'einsatz': einsatz,
             'lagekarten': lagekarten,
             'aktive_Einsaetze': aktive_Einsaetze,
+            'icons': icons,
         }
         return render(request, 'doku/lagekarte.html', context)
 

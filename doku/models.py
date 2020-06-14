@@ -130,6 +130,14 @@ class Lagekarte(models.Model):
     Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT, editable=False)
 
 
+class Icon(models.Model):
+    Name = models.CharField(max_length=200, null=False)
+    icon = models.ImageField(upload_to="icons")
+
+    def __str__(self):
+        return self.Name
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nightmode = models.BooleanField(default=True)
