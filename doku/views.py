@@ -8,11 +8,12 @@ import json
 import datetime
 
 from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, Icon
+from .models import Einsatzstellen, Einheiten
 
 
 def index(request):
     Ort.objects.get_or_create(PLZ=0, Kurzname="ZZZ", Langname="Freitext")
-    einstellungen = Einstellungen.objects.filter(pk=1)[0]
+    einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
     alle_Einsaetze = Einsatz.objects.filter(Training=False).order_by('-Nummer')
     alle_Stichworte = Stichwort.objects.order_by('Kurzname')
     alle_Orte = Ort.objects.order_by('Kurzname')
@@ -36,7 +37,7 @@ def index(request):
 
 def index_training(request):
     Ort.objects.get_or_create(PLZ=0, Kurzname="ZZZ", Langname="Freitext")
-    einstellungen = Einstellungen.objects.filter(pk=1)[0]
+    einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
     alle_Einsaetze = Einsatz.objects.filter(Training=True).order_by('-Nummer')
     alle_Stichworte = Stichwort.objects.order_by('Kurzname')
     alle_Orte = Ort.objects.order_by('Kurzname')
@@ -53,7 +54,7 @@ def index_training(request):
 
 
 def einsatz(request, einsatz_id):
-    einstellungen = Einstellungen.objects.filter(pk=1)[0]
+    einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
     try:
         einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
     except:
@@ -80,6 +81,28 @@ def einsatz(request, einsatz_id):
     return render(request, 'doku/einsatz.html', context)
 
 
+def oel(request, einsatz_id):
+    einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
+    try:
+        einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
+    except:
+        einsatz = None
+    aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
+    autor = request.user if request.user.is_authenticated else None
+    einsatzstellen = Einsatzstellen.objects.filter(Einsatz=einsatz_id)
+    einheiten = Einheiten.objects.filter(Einsatz=einsatz_id)
+    context = {
+        'training': einsatz.Training,
+        'einstellungen': einstellungen,
+        'autor': autor,
+        'einsatz': einsatz,
+        'aktive_Einsaetze': aktive_Einsaetze,
+        'einsatzstellen': einsatzstellen,
+        'einheiten': einheiten,
+    }
+    return render(request, 'doku/oel.html', context)
+
+
 def lagekarte(request, einsatz_id):
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
     if request.method == "POST":
@@ -91,7 +114,7 @@ def lagekarte(request, einsatz_id):
         else:
             return HttpResponseServerError
     else:
-        einstellungen = Einstellungen.objects.filter(pk=1)[0]
+        einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
         aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
         lagekarten = Lagekarte.objects.filter(Einsatz=einsatz_id).order_by('-Erstellt')
         autor = request.user if request.user.is_authenticated else None
@@ -273,7 +296,6 @@ def meldung(request, einsatz_id):
 
 
 def summe_Personal(request, einsatz_id):
-    einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
     zuege = Zug.objects.all()
     summe = {}
     zf = 0

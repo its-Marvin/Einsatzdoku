@@ -17,6 +17,7 @@ urlpatterns = [
     path('<int:einsatz_id>/Fahrzeug/neu', views.neues_Fahrzeug, name='neuesFahrzeug'),
     path('<int:einsatz_id>/Person/neu', views.neue_Person, name='neuePerson'),
     path('<int:einsatz_id>/Einsatzende', views.einsatzende, name='einsatzende'),
+    path('<int:einsatz_id>/OEL', views.oel, name='oel'),
     path('training/', views.index_training, name='index_training'),
     path('training/Einsatz', views.neues_Training, name='neuesTraining'),
     path('Benutzer/', include('django.contrib.auth.urls')),

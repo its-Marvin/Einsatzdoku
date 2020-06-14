@@ -508,3 +508,14 @@ input {
     height: 28px;
     background: var(--highlight-color);
     cursor: pointer;
+}
+
+.Einsatzstelle {
+    font-weight: normal;
+}
+.Anmerkung {
+    font-weight: normal;
+    font-style: italic;
+    font-size: 95%;
+    margin: 0;
+}

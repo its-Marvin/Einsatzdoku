@@ -1,0 +1,103 @@
+{% extends "doku/base_generic.html" %}
+{% load static %}
+
+{% block content %}
+{% if einsatz %}
+<script>
+		document.title = `Einsatzdokumentation - #{% if einsatz.extNummer %}
+		{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %} {{ einsatz.Stichwort.Kurzname }}
+		{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}`;
+
+</script>
+<div class="Modul linkesModul">
+    <h2>Einheiten</h2>
+    <div class="minimize-button active">-</div>
+    <div class="minimize-this" style="display:block;">
+        &nbsp;<br/>&nbsp;
+        {% if einheiten %}
+        <ul id="Einheitenliste">
+            {% for Einheit in einheiten %}
+            <li class="Einheit">
+                {{ Einheit }} ({{ Einheit.getAnzahlEinsatzstellen }})
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Abschnitt Meldungen -->
+<div class="Modul mittleresModul">
+    <h2>Einsätze in Arbeit</h2>
+    <div class="minimize-button active">-</div>
+    <div class="minimize-this" style="display:block;">
+        &nbsp;<br/>&nbsp;
+        {% if einsatzstellen %}
+        <ul id="aktiv">
+            {% for Einsatzstelle in einsatzstellen %}
+            {% if Einsatzstelle.Einheit %}
+            {% if not Einsatzstelle.Abgeschlossen %}
+            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};"
+                data-toggle="tooltip" title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}<br>Übernommen:<br>{{ Einsatzstelle.Zugewiesen }}"
+                data-html="true"
+                data-placement="bottom">
+                {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
+                {% if Einsatzstelle.Anmerkungen %}<p class="Anmerkung">{{ Einsatzstelle.Anmerkungen }}</p>{% endif %}
+            </li>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    <h2>abgeschlossene Einsätze</h2>
+    <div class="minimize-button active">-</div>
+    <div class="minimize-this" style="display:none;">
+        &nbsp;<br/>&nbsp;
+        {% if einsatzstellen %}
+        <ul id="aktiv">
+            {% for Einsatzstelle in einsatzstellen %}
+            {% if Einsatzstelle.Einheit %}
+            {% if Einsatzstelle.Abgeschlossen %}
+            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};"
+                data-toggle="tooltip" title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}<br>Übernommen:<br>{{ Einsatzstelle.Zugewiesen }}"
+                data-html="true"
+                data-placement="bottom">
+                {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
+                {% if Einsatzstelle.Anmerkungen %}<p class="Anmerkung">{{ Einsatzstelle.Anmerkungen }}</p>{% endif %}
+            </li>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+
+<div class="Modul rechtesModul">
+    <h2 class="do-not-print">offene Einsätze</h2>
+    <div class="minimize-button active">-</div>
+    <div class="minimize-this" style="display:block;">
+        &nbsp;<br/>&nbsp;
+        {% if einsatzstellen %}
+        <ul id="offen">
+            {% for Einsatzstelle in einsatzstellen %}
+            {% if not Einsatzstelle.Einheit %}
+            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};"
+                data-toggle="tooltip" title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}"
+                data-html="true"
+                data-placement="bottom">
+                {{ Einsatzstelle }}
+                {% if Einsatzstelle.Anmerkungen %}<p class="Anmerkung">{{ Einsatzstelle.Anmerkungen }}</p>{% endif %}
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<h2>Kein Einsatz mit dieser Nummer vorhanden!</h2>
+{% endif %}
+<script type="text/javascript" src="{% static 'doku/einsatz.js' %}"></script>
+{% endblock %}

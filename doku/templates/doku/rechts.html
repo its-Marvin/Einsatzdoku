@@ -1,16 +1,19 @@
 <div class="Modul rechtesModul">
-    {% if einstellungen.Lagekarten %}
+
         <h2 class="do-not-print">Sonstiges</h2>
         <div class="minimize-button active">-</div>
         <div class="minimize-this do-not-print">
             <div class="Toolbox">
+                {% if einstellungen.Lagekarten %}
                 <a target="_blank" href="{% url 'doku:lagekarte' einsatz.Nummer %}"><button>Lagekarten</button></a>
+                {% endif %}
+                <a href="{% url 'doku:oel' einsatz.Nummer %}"><button>ÖEL</button></a>
                 <a target="_blank" href="{{ einstellungen.Hydranten }}"><button>Hydranten</button></a>
                 <a target="_blank" href="https://www.dgg.bam.de/quickinfo/de/"><button>Gefahrgut</button></a>
                 <!--<a target="_blank" href=""><button>FeuerOn Infos</button></a>-->
             </div>
         </div>
-    {% endif %}
+
     <!-- Stärkemeldungen -->
     {% if einstellungen.Fahrzeuge %}
         <h2 {% if not eingesetzte_Fahrzeuge %}class="do-not-print" {% endif %}>Fahrzeuge und Stärken</h2>

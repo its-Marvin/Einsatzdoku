@@ -64,7 +64,7 @@ class Einsatz(models.Model):
 
 
 class Zug(models.Model):
-    Name = models.CharField(max_length=50, null=False)
+    Name = models.CharField(max_length=50, null=False, blank=False)
     Farbe = models.CharField(max_length=7, default="#bbbbbb")
 
     def __str__(self):
@@ -73,16 +73,17 @@ class Zug(models.Model):
 
 class Ort(models.Model):
     PLZ = models.IntegerField(primary_key=True, validators=[MinValueValidator(0), MaxValueValidator(99999)])
-    Kurzname = models.CharField(max_length=3, null=False)
-    Langname = models.CharField(max_length=20, null=False)
+    Kurzname = models.CharField(max_length=3, null=False, blank=False)
+    Langname = models.CharField(max_length=20, null=False, blank=False)
+    Farbe = models.CharField(max_length=7, default="#bbbbbb")
 
     def __str__(self):
         return str(self.Langname)
 
 
 class Stichwort(models.Model):
-    Kurzname = models.CharField(max_length=4, primary_key=True)
-    Langname = models.CharField(max_length=50, null=False)
+    Kurzname = models.CharField(max_length=4, primary_key=True, blank=False)
+    Langname = models.CharField(max_length=50, null=False, blank=False)
 
     def __str__(self):
         return str(self.Kurzname) + " " + str(self.Langname)
@@ -103,9 +104,9 @@ class Fahrzeug(models.Model):
 
 
 class Fahrzeuge(models.Model):
-    Funkname = models.CharField(max_length=8, primary_key=True)
+    Funkname = models.CharField(max_length=8, primary_key=True, blank=False, null=False)
     Ort = models.ForeignKey('Ort', on_delete=models.PROTECT)
-    Typ = models.CharField(max_length=10, null=False)
+    Typ = models.CharField(max_length=10, null=False, blank=False)
     Zug = models.ForeignKey('Zug', on_delete=models.PROTECT)
 
     def __str__(self):
@@ -113,14 +114,42 @@ class Fahrzeuge(models.Model):
 
 
 class Person(models.Model):
-    Nachname = models.CharField(max_length=50, null=False, editable=False)
-    Vorname = models.CharField(max_length=50, null=False, editable=False)
-    Rolle = models.CharField(max_length=50, null=False, editable=False)
+    Nachname = models.CharField(max_length=50, null=False, blank=False, editable=False)
+    Vorname = models.CharField(max_length=50, null=False, blank=False, editable=False)
+    Rolle = models.CharField(max_length=50, null=False, blank=False, editable=False)
     Notizen = models.CharField(max_length=200)
     Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT, editable=False)
 
     def __str__(self):
         return self.Nachname + ", " + self.Vorname + " (" + self.Rolle + ")"
+
+
+class Einheiten(models.Model):
+    Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT)
+    Name = models.CharField(max_length=50, null=False, blank=False)
+
+    def __str__(self):
+        return self.Name
+
+    def getAnzahlEinsatzstellen(self):
+        return Einsatzstellen.objects.filter(Einheit=self).count()
+
+
+class Einsatzstellen(models.Model):
+    Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT)
+    Ort = models.ForeignKey('Ort', on_delete=models.PROTECT)
+    Name = models.CharField(max_length=50, null=False, blank=False)
+    Einheit = models.ForeignKey('Einheiten', null=True, blank=True, on_delete=models.PROTECT)
+    Anmerkungen = models.TextField(null=False, blank=True, default="")
+    Gemeldet = models.DateTimeField(auto_now_add=True)
+    Zugewiesen = models.DateTimeField(blank=True, null=True)
+    Abgeschlossen = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ('Gemeldet', 'Ort')
+
+    def __str__(self):
+        return self.Name + ", " + self.Ort.Langname
 
 
 class Lagekarte(models.Model):
