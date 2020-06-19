@@ -7,6 +7,7 @@
 		<h2>Neuer Einsatz</h2>
 		<div class="minimize-button active">-</div>
 		<div class="minimize-this" style="display:block;">
+			<div class="spacer"></div>
 			<div class="Formular">
 				<form name="neuer_Einsatz"
 					  action="{% if training %}{% url 'doku:neuesTraining' %}{% else %}{% url 'doku:neuerEinsatz' %}{% endif %}"
@@ -49,7 +50,8 @@
 	<div class="Modul mittleresModul">
 		<h2>aktive Einsätze</h2>
 		<div class="minimize-button active">-</div>
-		<div class="minimize-this" style="display:block;">&nbsp;
+		<div class="minimize-this" style="display:block;">
+			<div class="spacer"></div>
 			<ul>
 			{% for einsatz in alle_Einsaetze %}
 				{% if not einsatz.Ende %}
@@ -83,7 +85,7 @@
 				<div class="minimize-button">+</div>
 				<div class="minimize-this" style="display:none;">
 			{% endif %}
-				&nbsp;<br />&nbsp;<br />
+				<div class="spacer"></div>
 				<ul>
 				{% for einsatz in alle_Einsaetze %}
 					{% if einsatz.Ende %}

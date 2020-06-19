@@ -3,6 +3,7 @@
         <h2 class="do-not-print">Sonstiges</h2>
         <div class="minimize-button active">-</div>
         <div class="minimize-this do-not-print">
+            <div class="spacer"></div>
             <div class="Toolbox">
                 {% if einstellungen.Lagekarten %}
                 <a target="_blank" href="{% url 'doku:lagekarte' einsatz.Nummer %}"><button>Lagekarten</button></a>
@@ -19,6 +20,7 @@
         <h2 {% if not eingesetzte_Fahrzeuge %}class="do-not-print" {% endif %}>Fahrzeuge und Stärken</h2>
         <div class="minimize-button active">-</div>
         <div class="minimize-this" style="display:block;">
+            <div class="spacer"></div>
             {% if autor and not einsatz.Ende %}
                 {% if alle_Fahrzeuge %}
                     <form name="neues_Fahrzeug"
@@ -37,8 +39,6 @@
                         <input type="submit" value="Hinzufügen / Ändern">
                     </form>
                 {% endif %}
-            {% else %}
-                    &nbsp;<br />&nbsp;<br />&nbsp;
             {% endif %}
             {% if eingesetzte_Fahrzeuge %}
                 <ul id="Fahrzeugliste">

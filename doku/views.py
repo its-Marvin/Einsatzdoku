@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotAllowed
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -82,25 +82,59 @@ def einsatz(request, einsatz_id):
 
 
 def oel(request, einsatz_id):
-    einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
-    try:
-        einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
-    except:
-        einsatz = None
-    aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
-    autor = request.user if request.user.is_authenticated else None
-    einsatzstellen = Einsatzstellen.objects.filter(Einsatz=einsatz_id)
-    einheiten = Einheiten.objects.filter(Einsatz=einsatz_id)
-    context = {
-        'training': einsatz.Training,
-        'einstellungen': einstellungen,
-        'autor': autor,
-        'einsatz': einsatz,
-        'aktive_Einsaetze': aktive_Einsaetze,
-        'einsatzstellen': einsatzstellen,
-        'einheiten': einheiten,
-    }
-    return render(request, 'doku/oel.html', context)
+    if request.method == "GET":
+        einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
+        try:
+            einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
+        except:
+            einsatz = None
+        aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
+        autor = request.user if request.user.is_authenticated else None
+        einsatzstellen = Einsatzstellen.objects.filter(Einsatz=einsatz_id)
+        einheiten = Einheiten.objects.filter(Einsatz=einsatz_id)
+        alle_Orte = Ort.objects.order_by('Kurzname')
+        context = {
+            'training': einsatz.Training,
+            'einstellungen': einstellungen,
+            'autor': autor,
+            'einsatz': einsatz,
+            'aktive_Einsaetze': aktive_Einsaetze,
+            'einsatzstellen': einsatzstellen,
+            'einheiten': einheiten,
+            'alle_Orte': alle_Orte,
+        }
+        return render(request, 'doku/oel.html', context)
+    elif request.method == "POST":
+        if not request.user.is_authenticated:
+            raise PermissionDenied
+        try:
+            einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
+            name = request.POST.get('Name', "Error!")
+            if 'Ort' in request.POST:
+                ort = get_object_or_404(Ort, Kurzname=request.POST['Ort'])
+                ortFrei = request.POST.get('Freitext', "")
+                anmerkungen = request.POST.get('Anmerkungen', "")
+                e = Einsatzstellen(Ort=ort, OrtFrei=ortFrei, Einsatz=einsatz, Name=name, Anmerkungen=anmerkungen)
+            elif 'Einsatzstelle' in request.POST:
+                e = Einsatzstellen.objects.filter(pk=request.POST['Einsatzstelle'])[0]
+                if 'DONE' in request.POST:
+                    e.Abgeschlossen = datetime.datetime.utcnow()
+                elif 'Einheit' in request.POST:
+                    e.Einheit = Einheiten.objects.filter(pk=request.POST['Einheit'])[0]
+                    e.Zugewiesen = datetime.datetime.utcnow()
+                elif 'Anmerkungen' in request.POST:
+                    e.Anmerkungen = request.POST['Anmerkungen']
+            else:
+                if Einheiten.objects.filter(Name=name).filter(Einsatz=einsatz).count() == 0:
+                    e = Einheiten(Name=name, Einsatz=einsatz)
+                else:
+                    e = Einheiten.objects.filter(Name=name).filter(Einsatz=einsatz)[0]
+            e.save()
+        except Exception as err:
+            return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>" + err)
+        return HttpResponseRedirect(reverse('doku:oel', args=[einsatz.pk]))
+    else:
+        return HttpResponseNotAllowed(['GET', 'POST'])
 
 
 def lagekarte(request, einsatz_id):

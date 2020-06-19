@@ -2,6 +2,7 @@
     <h2>Grunddaten</h2>
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
+        <div class="spacer"></div>
         {% if einstellungen.Einsatznummer %}
         <b>Einsatznummer:</b><br>
             {% if not einsatz.Ende or not einsatz.extNummer %}
@@ -21,7 +22,6 @@
             {% else %}
                 &nbsp;&nbsp;&nbsp;{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %}<br>
             {% endif %}
-
         {% endif %}
         {% if einstellungen.Einsatzleiter %}
         <b>Einsatzleiter:</b><br>
@@ -80,6 +80,7 @@
     <h2 {% if not alle_Personen %}class="do-not-print" {% endif %}>Beteiligte Personen</h2>
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
+        <div class="spacer"></div>
         {% if autor and not einsatz.Ende %}
             <form id="neue_Person"
                   name="neue_Person"
@@ -94,8 +95,6 @@
                 <input name="Notizen" placeholder="Notizen (z.B. Adresse)"/>
                 <input type="submit" value="Hinzufügen / Ändern">
             </form>
-        {% else %}
-            &nbsp;<br />&nbsp;<br />&nbsp;
         {% endif %}
         {% if alle_Personen %}
             <ul>

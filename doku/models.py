@@ -132,12 +132,13 @@ class Einheiten(models.Model):
         return self.Name
 
     def getAnzahlEinsatzstellen(self):
-        return Einsatzstellen.objects.filter(Einheit=self).count()
+        return Einsatzstellen.objects.filter(Einheit=self).filter(Abgeschlossen=None).count()
 
 
 class Einsatzstellen(models.Model):
     Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT)
     Ort = models.ForeignKey('Ort', on_delete=models.PROTECT)
+    OrtFrei = models.CharField(max_length=200, null=True)
     Name = models.CharField(max_length=50, null=False, blank=False)
     Einheit = models.ForeignKey('Einheiten', null=True, blank=True, on_delete=models.PROTECT)
     Anmerkungen = models.TextField(null=False, blank=True, default="")
@@ -149,7 +150,10 @@ class Einsatzstellen(models.Model):
         ordering = ('Gemeldet', 'Ort')
 
     def __str__(self):
-        return self.Name + ", " + self.Ort.Langname
+        if self.Ort.PLZ == 0:
+            return self.Name + ", " + self.OrtFrei
+        else:
+            return self.Name + ", " + self.Ort.Langname
 
 
 class Lagekarte(models.Model):

@@ -519,3 +519,20 @@ input {
     font-size: 95%;
     margin: 0;
 }
+.EinsatzstelleMenu {
+    display: none;
+}
+.EinsatzstelleMenu li {
+    background-color: inherit;
+}
+
+.floating-button {
+    float: right;
+    margin: 0;
+    padding: 0;
+}
+.floating-button * {
+    width: 100% !important;
+    height: inherit !important;
+    margin: inherit;
+}

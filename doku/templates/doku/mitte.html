@@ -3,6 +3,7 @@
 	<h2>{% if einsatz.Training %}Trainings-{% endif %}Meldungen</h2>
 	<div class="minimize-button active">-</div>
 	<div class="minimize-this" style="display:block;">
+		<div class="spacer"></div>
 		{% if autor and not einsatz.Ende %}
 			<div class="Formular">
 				<form name="neue_Meldung" action="{% url 'doku:neueMeldung' einsatz.Nummer %}" method="post" autocomplete="off">
@@ -24,8 +25,6 @@
 					<input type="submit" class="check" value="Neue Meldung hinzufügen">
 				</form>
 			</div>
-		{% else %}
-				&nbsp;<br />&nbsp;<br />
 		{% endif %}
 		{% if alle_Meldungen %}
 			<ul id="Meldungsliste" class="do-not-print">

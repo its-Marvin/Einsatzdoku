@@ -49,3 +49,12 @@ $.ajaxSetup({
 $(document).ready(function(){
   $('[data-toggle="tooltip"]').tooltip();
 });
+
+// Onclick dropdown
+$(document).ready(function() {
+  $('.Einsatzstelle').on("click",function(){
+
+    $(this).find(".EinsatzstelleMenu").toggle();
+    $(this).siblings().find(".EinsatzstelleMenu").hide();
+  }).find('.noClick').on("click",function(e){e.stopPropagation();});
+});
