@@ -83,45 +83,48 @@ def einsatz(request, einsatz_id):
 
 def oel(request, einsatz_id):
     if request.method == "GET":
-        einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
-        try:
-            einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
-        except:
-            einsatz = None
-        aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
-        autor = request.user if request.user.is_authenticated else None
-        einsatzstellen = Einsatzstellen.objects.filter(Einsatz=einsatz_id)
-        einheiten = Einheiten.objects.filter(Einsatz=einsatz_id)
-        alle_Orte = Ort.objects.order_by('Kurzname')
-        context = {
-            'training': einsatz.Training,
-            'einstellungen': einstellungen,
-            'autor': autor,
-            'einsatz': einsatz,
-            'aktive_Einsaetze': aktive_Einsaetze,
-            'einsatzstellen': einsatzstellen,
-            'einheiten': einheiten,
-            'alle_Orte': alle_Orte,
-        }
-        return render(request, 'doku/oel.html', context)
+        return oel_response(request, einsatz_id)
     elif request.method == "POST":
+        error = None
+        ortFrei = None
         if not request.user.is_authenticated:
             raise PermissionDenied
+        autor = request.user if request.user.is_authenticated else None
         try:
             einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
-            name = request.POST.get('Name', "Error!")
-            if 'Ort' in request.POST:
+            if 'Name' not in request.POST or request.POST['Name'] == "":
+                if 'Einsatzstelle' not in request.POST:
+                    raise Exception("Es muss ein Name eingegeben werden!")
+            name = request.POST.get('Name', "")
+            if 'neueEinsatzstelle' in request.POST:
+                if 'Ort' not in request.POST:
+                    raise Exception("Es muss ein Ort ausgewählt werden!")
                 ort = get_object_or_404(Ort, Kurzname=request.POST['Ort'])
-                ortFrei = request.POST.get('Freitext', "")
+                if ort.Kurzname == "ZZZ":
+                    ortFrei = request.POST.get('Freitext', "")
+                    if not ortFrei:
+                        raise Exception("Das Freitext Feld muss ausgefüllt sein!")
                 anmerkungen = request.POST.get('Anmerkungen', "")
                 e = Einsatzstellen(Ort=ort, OrtFrei=ortFrei, Einsatz=einsatz, Name=name, Anmerkungen=anmerkungen)
+                e_ort = ortFrei if ortFrei else ort.Langname
+                inhalt = "Neue Einsatzstelle: \"" + name + " in " + e_ort + "\""
+                m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
+                m.save()
             elif 'Einsatzstelle' in request.POST:
                 e = Einsatzstellen.objects.filter(pk=request.POST['Einsatzstelle'])[0]
                 if 'DONE' in request.POST:
-                    e.Abgeschlossen = datetime.datetime.utcnow()
+                    e.Abgeschlossen = datetime.datetime.now()
+                    e_ort = e.OrtFrei if e.OrtFrei else e.Ort.Langname
+                    inhalt = "Einsatzstelle \"" + e.Name + ", " + e_ort + "\" abgearbeitet von \"" + e.Einheit.Name + "\""
+                    m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
+                    m.save()
                 elif 'Einheit' in request.POST:
                     e.Einheit = Einheiten.objects.filter(pk=request.POST['Einheit'])[0]
-                    e.Zugewiesen = datetime.datetime.utcnow()
+                    e.Zugewiesen = datetime.datetime.now()
+                    e_ort = e.OrtFrei if e.OrtFrei else e.Ort.Langname
+                    inhalt = "Einsatzstelle \"" + e.Name + ", " + e_ort + "\" übernommen von \"" + e.Einheit.Name + "\""
+                    m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
+                    m.save()
                 elif 'Anmerkungen' in request.POST:
                     e.Anmerkungen = request.POST['Anmerkungen']
             else:
@@ -131,10 +134,35 @@ def oel(request, einsatz_id):
                     e = Einheiten.objects.filter(Name=name).filter(Einsatz=einsatz)[0]
             e.save()
         except Exception as err:
-            return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>" + err)
-        return HttpResponseRedirect(reverse('doku:oel', args=[einsatz.pk]))
+            error = str(err)
+        return oel_response(request, einsatz_id, error)
     else:
         return HttpResponseNotAllowed(['GET', 'POST'])
+
+
+def oel_response(request, einsatz_id, error=None):
+    einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
+    try:
+        einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
+    except:
+        einsatz = None
+    aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
+    autor = request.user if request.user.is_authenticated else None
+    einsatzstellen = Einsatzstellen.objects.filter(Einsatz=einsatz_id)
+    einheiten = Einheiten.objects.filter(Einsatz=einsatz_id)
+    alle_Orte = Ort.objects.order_by('Kurzname')
+    context = {
+        'training': einsatz.Training,
+        'einstellungen': einstellungen,
+        'autor': autor,
+        'einsatz': einsatz,
+        'aktive_Einsaetze': aktive_Einsaetze,
+        'einsatzstellen': einsatzstellen,
+        'einheiten': einheiten,
+        'alle_Orte': alle_Orte,
+        'error': error,
+    }
+    return render(request, 'doku/oel.html', context)
 
 
 def lagekarte(request, einsatz_id):

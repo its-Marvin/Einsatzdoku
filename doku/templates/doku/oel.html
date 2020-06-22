@@ -18,7 +18,7 @@
         <ul id="Einheitenliste">
             {% for Einheit in einheiten %}
             <li class="Einheit">
-                {{ Einheit }} ({{ Einheit.getAnzahlEinsatzstellen }})
+                <div class="floating-button">{{ Einheit.getAnzahlEinsatzstellen }}</div>{{ Einheit }}
             </li>
             {% endfor %}
         </ul>
@@ -29,7 +29,7 @@
                 {% csrf_token %}
                 <input hidden class="do-not-show" autocomplete="false">
                 <input id="EinheitName" name="Name" placeholder="Name der Einheit" required/>
-                <input type="submit" class="check" value="Weitere Einheit anlegen">
+                <input type="submit" class="check" value="Einheit anlegen">
             </form>
         </div>
         {% endif %}
@@ -57,7 +57,7 @@
                         {% csrf_token %}
                         <input hidden class="do-not-show" name="Einsatzstelle" value="{{ Einsatzstelle.pk }}">
                         <input hidden class="do-not-show" name="DONE" value="1" autocomplete="false">
-                        <input type="submit" class="check" value="abgearbeitet">
+                        <input type="submit" class="check" value="erledigt">
                     </form>
                 </div>
                 <div>
@@ -73,7 +73,7 @@
     </div>
     <h2>abgeschlossene Einsätze</h2>
     <div class="minimize-button active">-</div>
-    <div class="minimize-this" style="display:none;">
+    <div class="minimize-this" style="display:block;">
         <div class="spacer"></div>
         {% if einsatzstellen %}
         <ul id="fertig">
@@ -81,7 +81,8 @@
             {% if Einsatzstelle.Einheit %}
             {% if Einsatzstelle.Abgeschlossen %}
             <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};"
-                data-toggle="tooltip" title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}<br>Übernommen:<br>{{ Einsatzstelle.Zugewiesen }}"
+                data-toggle="tooltip"
+                title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}<hr>Übernommen:<br>{{ Einsatzstelle.Zugewiesen }}<hr>Abgeschlossen:<br>{{ Einsatzstelle.Abgeschlossen }}"
                 data-html="true"
                 data-placement="bottom">
                 {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
@@ -105,6 +106,7 @@
             <form name="neue_Einsatzstelle" action="{% url 'doku:oel' einsatz.Nummer %}" method="post" autocomplete="off">
                 {% csrf_token %}
                 <input hidden class="do-not-show" autocomplete="false">
+                <input hidden class="do-not-show" name="neueEinsatzstelle" value="1">
                 <input id="EStellenName" name="Name" placeholder="Adresse oder Name" required/>
                 <select class="Ort" name="Ort">
                     <option value="" disabled selected>Ort</option>
@@ -145,7 +147,7 @@
                         <form name="Einsatzuebernahme" action="{% url 'doku:oel' einsatz.Nummer %}" method="post" autocomplete="off">
                             {% csrf_token %}
                             <input hidden class="do-not-show" name="Einsatzstelle" value="{{ Einsatzstelle.pk }}">
-                            <select class="Einheit" name="Einheit">
+                            <select class="Einheit" name="Einheit" required>
                                 <option value="" disabled selected>Einheit</option>
                                 {% for Einheit in einheiten %}
                                 <option value="{{ Einheit.pk }}">

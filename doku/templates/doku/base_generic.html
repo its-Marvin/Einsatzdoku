@@ -89,5 +89,10 @@
 			document.documentElement.style.setProperty('--text-inverse-color', '#000');
 		</script>
 	{% endif %}
+	{% if error %}
+	<script>
+		alert("{{ error }}");
+	</script>
+	{% endif %}
 </body>
 </html>

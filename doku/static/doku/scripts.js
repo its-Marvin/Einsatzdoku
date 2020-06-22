@@ -58,3 +58,7 @@ $(document).ready(function() {
     $(this).siblings().find(".EinsatzstelleMenu").hide();
   }).find('.noClick').on("click",function(e){e.stopPropagation();});
 });
+
+$(document).ready(function() {
+    $('.minimize-button').prev().css("cursor", "pointer");
+});
