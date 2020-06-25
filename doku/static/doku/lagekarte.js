@@ -327,7 +327,13 @@ if (toolsExist) {
     $("#speichern").click(function() {
         img = canvas_data.background;
         canvas_data.background = img.src;
-        $.post(location.pathName, {'image': canvas.toDataURL(), 'canvas_data': JSON.stringify(canvas_data)}, function(){ location.reload();});
+        $.post(location.pathName, {
+            'image': canvas.toDataURL(),
+            'canvas_data': JSON.stringify(canvas_data)
+        },
+        function(){
+            location.reload();
+        });
         canvas_data.background = img;
         }
     )

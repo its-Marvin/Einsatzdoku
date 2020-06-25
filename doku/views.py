@@ -107,7 +107,7 @@ def oel(request, einsatz_id):
                 anmerkungen = request.POST.get('Anmerkungen', "")
                 e = Einsatzstellen(Ort=ort, OrtFrei=ortFrei, Einsatz=einsatz, Name=name, Anmerkungen=anmerkungen)
                 e_ort = ortFrei if ortFrei else ort.Langname
-                inhalt = "Neue Einsatzstelle: \"" + name + " in " + e_ort + "\""
+                inhalt = "Neue Einsatzstelle: \"" + name + ", " + e_ort + "\""
                 m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
                 m.save()
             elif 'Einsatzstelle' in request.POST:
@@ -172,7 +172,7 @@ def lagekarte(request, einsatz_id):
             karte = Lagekarte(Bild=request.POST['image'], Data=request.POST['canvas_data'], Einsatz=einsatz)
             karte.save()
             return HttpResponse("Success")
-            #return HttpResponseRedirect(reverse('doku:lagekarte', args=[einsatz_id]))
+            # return HttpResponseRedirect(reverse('doku:lagekarte', args=[einsatz_id]))
         else:
             return HttpResponseServerError
     else:
