@@ -8,6 +8,7 @@
     <h2>Tools</h2>
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
+        <div class="spacer"></div>
         <div class="Toolbox">
             <a target="_blank"
                href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3">
@@ -24,9 +25,9 @@
             <button id="linetool" type="button" onclick="line()">Linie</button>
             <button id="rectangletool" type="button" onclick="rectangle()">Rechteck</button>
             <button id="circletool" type="button" onclick="circle()">Kreis</button>
-            <!--<button id="erasertool" type="button" style="height: 25px; width: 100px;" onclick="eraser()">Radiergummi</button>
-            <button id="resettool" type="button" style="height: 25px; width: 100px;" onclick="reset()">Reset</button>-->
-            <button id="Farbauswahl" type="button">Farbauswahl</button>
+            <!--<button id="erasertool" type="button" style="height: 25px; width: 100px;" onclick="eraser()">Radiergummi</button>-->
+            <button id="resettool" type="button" onclick="clearCanvas()">Reset</button>
+            <input id="Farbauswahl" type="color" value="#ff0000"><label for="Farbauswahl">Farbauswahl:</label>
             <input type="range" min="4" max="16" step="2" value="6" id="stiftdickeauswahl">
             <div id="Farbpalette"></div>
         </div>
@@ -34,6 +35,7 @@
     <h2>Icons</h2>
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
+        <div class="spacer"></div>
         {% for icon in icons %}
         <div class="icon"
              data-toggle="tooltip"
@@ -52,15 +54,20 @@
     <h2>neue Lagekarte</h2>
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
-        <canvas id="Lagekarte" width="3840" height="2160">Der Browser unterstützt dieses Feature nicht!</canvas>
+        <div class="spacer"></div>
+        <canvas id="Lagekarte" width="1100" height="780">Der Browser unterstützt dieses Feature nicht!</canvas>
     </div>
 </div>
 <div class="Modul rechtesModul">
     <h2>alle Lagekarten</h2>
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
+        <div class="spacer"></div>
         {% for karte in lagekarten %}
-        <img class="Archivkarte" src="{{ karte.Bild }}" alt="{{ karte.Data }}">
+        <div class="ArchivKarte">
+            <img src="{{ karte.Bild }}">
+            <div class="Lagekarte-Data do-not-show do-not-print">{{ karte.Data }}</div>
+        </div>
         <div class="ArchivText">{{ karte.Erstellt }}</div>
         {% endfor %}
     </div>

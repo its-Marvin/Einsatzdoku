@@ -411,17 +411,18 @@ input {
 	background-color: #fff;
 }
 
-#paint {
-    position  : absolute;
-    left      : 130px;
-    top       : 40px;
+input[type=color] {
+    border: 1px solid var(--main-bg-color);
+    width: 65%;
+    background: var(--element-color);
+    float: right;
+    margin-right: 2%;
 }
-
-#colorset {
-    position  : absolute;
-    left      : 0px;
-    top       : 500px;
-    width     : 860px;
+label {
+    padding-left: 1%;
+    padding-top: 1%;
+    width: 31%;
+    font-weight: normal;
 }
 
 .Toolbox button {
@@ -445,26 +446,21 @@ input {
     outline: none;
 }
 
-#Farbpalette {
-    width: 165px;
-}
-.color-option {
-    width: 15px;
-    height: 15px;
-    float: left;
-}
-
 #importBackground {
     display: none;
 }
 
-.Archivkarte {
+.ArchivKarte {
     width: 98%;
     margin-bottom: -2px;
     border-bottom: 2px solid var(--main-bg-color);
     border-top: 3px solid var(--highlight-color);
     border-left: 3px solid var(--highlight-color);
     border-right: 3px solid var(--highlight-color);
+}
+
+.ArchivKarte img {
+    width: 100%;
 }
 .ArchivText {
     text-align: center;
