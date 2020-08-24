@@ -336,13 +336,6 @@ if (document.getElementById('addText')) {
 
     // Lagekarte speichern
     $("#speichern").click(function () {
-            let img = canvas_data.background;
-            try {
-                canvas_data.background = img.src;
-            } catch (TypeError) {
-                alert("Speichern ist nur mit Hintergrund möglich!");
-                return;
-            }
             $.post(location.pathname, {
                     'image': canvas.toDataURL('image/webp', 0.85),
                     'canvas_data': JSON.stringify(canvas_data)
@@ -350,7 +343,6 @@ if (document.getElementById('addText')) {
                 function () {
                     location.reload();
                 });
-            canvas_data.background = img;
         }
     )
 
