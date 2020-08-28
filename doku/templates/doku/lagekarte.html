@@ -25,7 +25,7 @@
             <button id="linetool" type="button" onclick="line()">Linie</button>
             <button id="rectangletool" type="button" onclick="rectangle()">Rechteck</button>
             <button id="circletool" type="button" onclick="circle()">Kreis</button>
-            <!--<button id="erasertool" type="button" style="height: 25px; width: 100px;" onclick="eraser()">Radiergummi</button>-->
+            <button id="undo" type="button" onclick="undo()">Rückgängig</button>
             <button id="resettool" type="button" onclick="clearCanvas()">Reset</button>
             <input id="Farbauswahl" type="color" value="#ff0000"><label for="Farbauswahl">Farbauswahl:</label>
             <input type="range" min="4" max="16" step="2" value="6" id="stiftdickeauswahl">
@@ -33,15 +33,17 @@
         </div>
     </div>
     <h2>Icons</h2>
-    <div class="minimize-button active">-</div>
-    <div class="minimize-this" style="display:block;">
+    <div class="minimize-button active">+</div>
+    <div class="minimize-this" style="display:none;">
         <div class="spacer"></div>
+        <button type="button">
+            Icon einmal anklicken zum Auswählen.<br>
+            Dann in die Karte klicken, um es zu platzieren.
+        </button>
         {% for icon in icons %}
-        <div class="icon"
-             data-toggle="tooltip"
-             title="{{ icon.Name }}"
-             data-placement="bottom">
-            <img src="/media/{{ icon.icon }}">
+        <div class="icon">
+            <img src="/static/doku/icons/{{ icon }}" draggable="true" onmousedown="icon(this)">
+            <p>{{ icon }}</p>
         </div>
         {% endfor %}
     </div>
@@ -55,7 +57,9 @@
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
         <div class="spacer"></div>
-        <canvas id="Lagekarte" width="1100" height="780">Der Browser unterstützt dieses Feature nicht!</canvas>
+        <canvas id="Lagekarte" width="1100" height="780">
+            Der Browser unterstützt dieses Feature nicht!
+        </canvas>
     </div>
 </div>
 <div class="Modul rechtesModul">

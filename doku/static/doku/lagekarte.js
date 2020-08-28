@@ -29,6 +29,7 @@ function initiateData() {
         "texts": [],
         "width": DEFAULT_WIDTH,
         "height": DEFAULT_HEIGHT,
+        "history": []
     };
 }
 
@@ -149,6 +150,7 @@ if (document.getElementById('addText')) {
         } else {
             $(".Selected").removeClass("Selected");
             $("#penciltool").addClass("Selected");
+            let currentPencil = [];
 
             canvas.onmousedown = function _md(e) {
                 curX = e.clientX - canvas.offsetLeft;
@@ -173,16 +175,26 @@ if (document.getElementById('addText')) {
 
             canvas.onmouseup = function (e) {
                 hold = false;
+                if (currentPencil.length > 0) {
+                    canvas_data.history.push("pencil");
+                    canvas_data.pencil.push(currentPencil);
+                    currentPencil = [];
+                }
             };
 
             canvas.onmouseout = function (e) {
                 hold = false;
+                if (currentPencil.length > 0) {
+                    canvas_data.history.push("pencil");
+                    canvas_data.pencil.push(currentPencil);
+                    currentPencil = [];
+                }
             };
 
             function draw() {
                 ctx.lineTo(curX, curY);
                 ctx.stroke();
-                canvas_data.pencil.push({
+                currentPencil.push({
                     "startx": prevX, "starty": prevY, "endx": curX, "endy": curY,
                     "thick": ctx.lineWidth, "color": ctx.strokeStyle
                 });
@@ -220,6 +232,7 @@ if (document.getElementById('addText')) {
                     "startx": prevX, "starty": prevY, "endx": curX, "endy": curY,
                     "thick": ctx.lineWidth, "color": ctx.strokeStyle
                 });
+                canvas_data.history.push("line");
             }
             hold = false;
 
@@ -251,6 +264,7 @@ if (document.getElementById('addText')) {
                 "startx": prevX, "starty": prevY, "endx": curX, "endy": curY,
                 "thick": ctx.lineWidth, "color": ctx.strokeStyle
             });
+            canvas_data.history.push("rectangle");
             hold = false;
         };
     }
@@ -286,11 +300,45 @@ if (document.getElementById('addText')) {
                 "startx": prevX, "starty": prevY, "radius": radius, "thick": ctx.lineWidth,
                 "color": ctx.strokeStyle
             });
+            canvas_data.history.push("circle");
         };
 
         canvas.onmouseout = function (e) {
             hold = false;
         };
+    }
+
+    function icon(el) {
+        clearEvents();
+        $("#cursor").addClass("Selected");
+        let iconLink = el.src.replace(/^(?:\/\/|[^/]+)*\//, '/');
+        let iconWidth = el.width;
+        let iconHeight = el.height;
+
+        function addIcon(e) {
+            if (iconLink != null) {
+                canvas_data.icons.push({
+                    "icon": iconLink,
+                    "x": e.clientX - canvas.offsetLeft - (iconWidth/2),
+                    "y": e.clientY - canvas.offsetTop - (iconHeight/2),
+                    "width": iconWidth,
+                    "height": iconHeight,
+                });
+                canvas_data.history.push("icons");
+                redraw();
+            }
+            iconLink = null;
+        }
+        canvas.onmouseup = addIcon;
+    }
+
+    function undo() {
+        if (canvas_data.history != null) {
+            if ( canvas_data.history.length > 0) {
+                canvas_data[canvas_data.history.pop()].pop();
+                redraw();
+            }
+        }
     }
 
     // Hintergrund importieren
@@ -331,6 +379,7 @@ if (document.getElementById('addText')) {
         text.width = ctx.measureText(text.text).width;
         // put this new text in the texts array
         canvas_data.texts.push(text);
+        canvas_data.history.push("texts");
         redraw();
     });
 
@@ -354,18 +403,21 @@ if (document.getElementById('addText')) {
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     addBackground();
-    redraw_elements();
+    //redraw_elements();
 }
 
 function redraw_elements() {
-    for (var i = 0; i < canvas_data.pencil.length; i++) {
-        var pencil = canvas_data.pencil[i];
-        ctx.beginPath();
-        ctx.lineWidth = pencil.thick;
-        ctx.strokeStyle = pencil.color;
-        ctx.moveTo(pencil.startx, pencil.starty);
-        ctx.lineTo(pencil.endx, pencil.endy);
-        ctx.stroke();
+    for (let i = 0; i < canvas_data.pencil.length; i++) {
+        let currentLine = canvas_data.pencil[i]
+        for (let j = 0; j < currentLine.length; j++) {
+            let pencil = currentLine[j];
+            ctx.beginPath();
+            ctx.lineWidth = pencil.thick;
+            ctx.strokeStyle = pencil.color;
+            ctx.moveTo(pencil.startx, pencil.starty);
+            ctx.lineTo(pencil.endx, pencil.endy);
+            ctx.stroke();
+        }
     }
     for (var i = 0; i < canvas_data.line.length; i++) {
         var line = canvas_data.line[i];
@@ -394,7 +446,13 @@ function redraw_elements() {
     }
     for (var i = 0; i < canvas_data.icons.length; i++) {
         var icon = canvas_data.icons[i];
-        ctx.drawImage(icon.img, icon.startx, icon.starty, icon.endx, icon.endy);
+        let img = new Image();
+        let x = icon.x;
+        let y = icon.y;
+        img.src = icon.icon
+        img.onload = function () {
+            ctx.drawImage(img, x, y);
+        }
     }
     for (var i = 0; i < canvas_data.texts.length; i++) {
         var text = canvas_data.texts[i];
@@ -437,13 +495,24 @@ $(".ArchivKarte").click(function () {
 
 })
 
-function resize() {
-    canvas_data.height = Math.round(canvas_data.width / ratio);
+function validateCanvasData(){
+    canvas_data.forEach( function(element, index, array) {
+        if (element == null) array[index] = [];
+    })
+    if (canvas_data.background == []) canvas_data.background = null;
+    if (canvas_data.width == []) canvas_data.width = DEFAULT_WIDTH;
+    if (canvas_data.height == []) canvas_data.height = DEFAULT_HEIGHT;
+}
 
-    if (canvas_data.height > DEFAULT_HEIGHT) {
-        canvas_data.height = DEFAULT_HEIGHT;
-        canvas_data.width = DEFAULT_HEIGHT * ratio;
-    }
+function resize() {
+    //if (canvas_data.width !== DEFAULT_WIDTH || canvas_data.height !== DEFAULT_HEIGHT) {
+        canvas_data.height = Math.round(canvas_data.width / ratio);
+
+        if (canvas_data.height > DEFAULT_HEIGHT) {
+            canvas_data.height = DEFAULT_HEIGHT;
+            canvas_data.width = DEFAULT_HEIGHT * ratio;
+        }
+    //}
     canvas.width = canvas_data.width;
     canvas.height = canvas_data.height;
     redraw();
@@ -456,6 +525,7 @@ function rememberCanvas() {
 
 function clearCanvas() {
     canvas_data = initiateData();
+    rememberCanvas();
     resize();
     cursor();
 }

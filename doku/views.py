@@ -6,8 +6,9 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseServerError
 import json
 import datetime
+import os
 
-from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, Icon
+from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug
 from .models import Einsatzstellen, Einheiten
 
 
@@ -180,7 +181,7 @@ def lagekarte(request, einsatz_id):
         aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
         lagekarten = Lagekarte.objects.filter(Einsatz=einsatz_id).order_by('-Erstellt')
         autor = request.user if request.user.is_authenticated else None
-        icons = Icon.objects.all()
+        icons = get_icons()
         context = {
             'training': einsatz.Training,
             'einstellungen': einstellungen,
@@ -191,6 +192,12 @@ def lagekarte(request, einsatz_id):
             'icons': icons,
         }
         return render(request, 'doku/lagekarte.html', context)
+
+def get_icons():
+    icons = {}
+    for icon in os.listdir("doku/static/doku/icons"):
+        icons[icon] = icon
+    return sorted(icons, reverse=True)
 
 
 def neuer_Einsatz(request):
