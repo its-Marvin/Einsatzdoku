@@ -194,10 +194,24 @@ def lagekarte(request, einsatz_id):
         return render(request, 'doku/lagekarte.html', context)
 
 def get_icons():
-    icons = {}
+    icons = []
     for icon in os.listdir("doku/static/doku/icons"):
-        icons[icon] = icon
-    return sorted(icons, reverse=True)
+        try:
+            order = int(icon.split("_")[0])
+            name = icon.split("_", 1)[1].split(".")[0]
+        except:
+            order = 999
+            try:
+                name = icon.split(".")[0]
+            except:
+                name = icon
+        icons.append({
+            'path': icon,
+            'name': name,
+            'order': order
+        })
+    icons.sort(key=lambda i: (i['order'], i['name']))
+    return icons
 
 
 def neuer_Einsatz(request):

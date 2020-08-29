@@ -20,7 +20,7 @@
             <br><br>
             <input id="newText" type="text" placeholder="Text für Lagekarte">
             <button id="addText" onclick="cursor()">Text hinzufügen</button>
-            <button id="cursor" onclick="cursor()">Drag&Drop</button>
+            <button id="cursor" onclick="cursor()">Text verschieben</button>
             <button id="penciltool" type="button" onclick="pencil()">Stift</button>
             <button id="linetool" type="button" onclick="line()">Linie</button>
             <button id="rectangletool" type="button" onclick="rectangle()">Rechteck</button>
@@ -36,16 +36,14 @@
     <div class="minimize-button active">+</div>
     <div class="minimize-this" style="display:none;">
         <div class="spacer"></div>
-        <button type="button">
-            Icon einmal anklicken zum Auswählen.<br>
-            Dann in die Karte klicken, um es zu platzieren.
-        </button>
-        {% for icon in icons %}
-        <div class="icon">
-            <img src="/static/doku/icons/{{ icon }}" draggable="true" onmousedown="icon(this)">
-            <p>{{ icon }}</p>
+        <div class="Toolbox">
+            {% for icon in icons %}
+            <button class="icon" onclick="icon(this)">
+                <img src="/static/doku/icons/{{ icon.path }}" draggable="true">
+                <p>{{ icon.name }}</p>
+            </button>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% else %}
     <h2>Einsatzende</h2>

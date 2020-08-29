@@ -434,6 +434,19 @@ label {
     border    : 1px solid var(--main-bg-color);
     cursor: pointer;
 }
+button.icon {
+    height: 40px !important;
+}
+button img {
+    float: left;
+    margin-left: 10%;
+    margin-top: 1%;
+}
+button p {
+    margin-top: 2%;
+    padding-left: 30%;
+    text-align: left;
+}
 
 .Toolbox button:hover {
     background: var(--sec-bg-color);

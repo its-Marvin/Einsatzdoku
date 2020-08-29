@@ -310,10 +310,10 @@ if (document.getElementById('addText')) {
 
     function icon(el) {
         clearEvents();
-        $("#cursor").addClass("Selected");
-        let iconLink = el.src.replace(/^(?:\/\/|[^/]+)*\//, '/');
-        let iconWidth = el.width;
-        let iconHeight = el.height;
+        el.classList.add("Selected");
+        let iconLink = el.childNodes[1].src.replace(/^(?:\/\/|[^/]+)*\//, '/');
+        let iconWidth = el.childNodes[1].width;
+        let iconHeight = el.childNodes[1].height;
 
         function addIcon(e) {
             if (iconLink != null) {
@@ -327,6 +327,7 @@ if (document.getElementById('addText')) {
                 canvas_data.history.push("icons");
                 redraw();
             }
+            clearEvents();
             iconLink = null;
         }
         canvas.onmouseup = addIcon;
