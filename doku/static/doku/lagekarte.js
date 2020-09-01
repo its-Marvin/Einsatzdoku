@@ -36,6 +36,9 @@ function initiateData() {
 let canvas_data = initiateData();
 
 if (document.getElementById('addText')) {
+    /**
+     * TODO Add check for added background, hide tools until background added
+     */
     Linienbreite.change(function () {
         ctx.lineWidth = this.value;
     });
