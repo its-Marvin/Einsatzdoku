@@ -67,13 +67,14 @@
                     <li>
                         <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
                             {% csrf_token %}
-                            <input name="Notiz" type="text" placeholder="neue Notiz hinzufügen">
+                            <textarea name="Notiz" placeholder="neue Notiz hinzufügen"></textarea>
                             <input type="submit" class="check" value="Hinzufügen">
                         </form>
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                <li>
-                               {{ notiz.Notiz }}<p class="Wichtig">{{ notiz.getTimeOrDate }}</p>
+                                   <div class="message-time">{{ notiz.getTimeOrDate }}:</div>
+                                   <div class="message-text">{{ notiz.Notiz }}</div>
                                </li>
                             {% endif %}
                         {% endfor %}
@@ -111,7 +112,8 @@
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                <li>
-                               {{ notiz.Notiz }}<p class="Wichtig">{{ notiz.getTimeOrDate }}</p>
+                                   <div class="message-time">{{ notiz.getTimeOrDate }}:</div>
+                                   <div class="message-text">{{ notiz.Notiz }}</div>
                                </li>
                             {% endif %}
                         {% endfor %}
@@ -194,7 +196,8 @@
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                <li>
-                               {{ notiz.Notiz }}<p class="Wichtig">{{ notiz.getTimeOrDate }}</p>
+                                   <div class="message-time">{{ notiz.getTimeOrDate }}:</div>
+                                   <div class="message-text">{{ notiz.Notiz }}</div>
                                </li>
                             {% endif %}
                         {% endfor %}

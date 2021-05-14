@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotAllowed
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotAllowed, HttpResponseForbidden
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -85,14 +85,19 @@ def einsatz(request, einsatz_id):
 
 def oel_einsatzstelle_notiz(request, einsatz_id, einsatzstelle_id):
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
         try:
             error = ""
             einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
             einsatzstelle = get_object_or_404(Einsatzstellen, pk=einsatzstelle_id)
-            notiztext = request.POST.get('Notiz', "Fehler!")
-            notiz = Einsatzstellen_Notizen(Einsatzstelle=einsatzstelle, Notiz=notiztext, Einsatz=einsatz)
-            notiz.save()
-        except TimeoutError:
+            notiztext = request.POST.get('Notiz', "Fehler!").strip()
+            if notiztext != "":
+                notiz = Einsatzstellen_Notizen(Einsatzstelle=einsatzstelle, Notiz=notiztext, Einsatz=einsatz)
+                notiz.save()
+            else:
+                error = "Notiz darf nicht leer sein."
+        except Exception:
             error = "Fehler beim Anlegen einer neuen Notiz."
         return oel_response(request, einsatz_id, error=error)
     else:
@@ -103,6 +108,8 @@ def oel(request, einsatz_id):
     if request.method == "GET":
         return oel_response(request, einsatz_id)
     elif request.method == "POST":
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
         error = None
         ortFrei = None
         if not request.user.is_authenticated:
@@ -122,11 +129,12 @@ def oel(request, einsatz_id):
                     ortFrei = request.POST.get('Freitext', "")
                     if not ortFrei:
                         raise Exception("Das Freitext Feld muss ausgefüllt sein!")
-                anmerkungen = request.POST.get('Anmerkungen', "")
+                anmerkungen = request.POST.get('Anmerkungen', "").strip()
                 e = Einsatzstellen(Ort=ort, OrtFrei=ortFrei, Einsatz=einsatz, Name=name)
                 e.save()
-                notiz = Einsatzstellen_Notizen(Einsatz=einsatz, Notiz=anmerkungen, Einsatzstelle=e)
-                notiz.save()
+                if anmerkungen != "":
+                    notiz = Einsatzstellen_Notizen(Einsatz=einsatz, Notiz=anmerkungen, Einsatzstelle=e)
+                    notiz.save()
                 e_ort = ortFrei if ortFrei else ort.Langname
                 inhalt = "Neue Einsatzstelle: \"" + name + ", " + e_ort + "\""
                 m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
