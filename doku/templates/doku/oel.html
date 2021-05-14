@@ -62,8 +62,23 @@
                 </div>
                 <div>
                 {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
-                {% if Einsatzstelle.Anmerkungen %}<p class="Anmerkung">{{ Einsatzstelle.Anmerkungen }}</p>{% endif %}
                 </div>
+            <ul class="EinsatzstelleMenu noClick">
+                    <li>
+                        <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
+                            {% csrf_token %}
+                            <input name="Notiz" type="text" placeholder="neue Notiz hinzufügen">
+                            <input type="submit" class="check" value="Hinzufügen">
+                        </form>
+                        {% for notiz in notizen %}
+                            {% if notiz.Einsatzstelle == Einsatzstelle %}
+                               <li>
+                               {{ notiz.Notiz }}<p class="Wichtig">{{ notiz.getTimeOrDate }}</p>
+                               </li>
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                </ul>
             </li>
             {% endif %}
             {% endif %}
@@ -86,7 +101,22 @@
                 data-html="true"
                 data-placement="bottom">
                 {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
-                {% if Einsatzstelle.Anmerkungen %}<p class="Anmerkung">{{ Einsatzstelle.Anmerkungen }}</p>{% endif %}
+            <ul class="EinsatzstelleMenu noClick">
+                    <li>
+                        <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
+                            {% csrf_token %}
+                            <input name="Notiz" type="text" placeholder="neue Notiz hinzufügen">
+                            <input type="submit" class="check" value="Hinzufügen">
+                        </form>
+                        {% for notiz in notizen %}
+                            {% if notiz.Einsatzstelle == Einsatzstelle %}
+                               <li>
+                               {{ notiz.Notiz }}<p class="Wichtig">{{ notiz.getTimeOrDate }}</p>
+                               </li>
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                </ul>
             </li>
             {% endif %}
             {% endif %}
@@ -140,9 +170,6 @@
                 data-placement="left">
                 {{ Einsatzstelle }}
                 <ul class="EinsatzstelleMenu noClick">
-                    {% if Einsatzstelle.Anmerkungen %}
-                    <li class="Anmerkung">{{ Einsatzstelle.Anmerkungen }}</li>
-                    {% endif %}
                     <li>
                         <form name="Einsatzuebernahme" action="{% url 'doku:oel' einsatz.Nummer %}" method="post" autocomplete="off">
                             {% csrf_token %}
@@ -157,6 +184,20 @@
                             </select>
                             <input type="submit" class="check" value="Einsatz zuweisen">
                         </form>
+                    </li>
+                    <li>
+                        <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
+                            {% csrf_token %}
+                            <input name="Notiz" type="text" placeholder="neue Notiz hinzufügen">
+                            <input type="submit" class="check" value="Hinzufügen">
+                        </form>
+                        {% for notiz in notizen %}
+                            {% if notiz.Einsatzstelle == Einsatzstelle %}
+                               <li>
+                               {{ notiz.Notiz }}<p class="Wichtig">{{ notiz.getTimeOrDate }}</p>
+                               </li>
+                            {% endif %}
+                        {% endfor %}
                     </li>
                 </ul>
             </li>

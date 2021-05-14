@@ -141,7 +141,6 @@ class Einsatzstellen(models.Model):
     OrtFrei = models.CharField(max_length=200, null=True)
     Name = models.CharField(max_length=50, null=False, blank=False)
     Einheit = models.ForeignKey('Einheiten', null=True, blank=True, on_delete=models.PROTECT)
-    Anmerkungen = models.TextField(null=False, blank=True, default="")
     Gemeldet = models.DateTimeField(auto_now_add=True)
     Zugewiesen = models.DateTimeField(blank=True, null=True)
     Abgeschlossen = models.DateTimeField(blank=True, null=True)
@@ -154,6 +153,28 @@ class Einsatzstellen(models.Model):
             return self.Name + ", " + self.OrtFrei
         else:
             return self.Name + ", " + self.Ort.Langname
+
+
+class Einsatzstellen_Notizen(models.Model):
+    Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT)
+    Einsatzstelle = models.ForeignKey('Einsatzstellen', on_delete=models.PROTECT)
+    Notiz = models.TextField(null=False, blank=True, default="")
+    Erfasst = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.Notiz + " (" + self.getTimeOrDate() + ")"
+
+    def getTimeCreated(self):
+        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%H:%M')
+
+    def getDateCreated(self):
+        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%d %B %Y')
+
+    def getTimeOrDate(self):
+        if self.Erfasst.date() == datetime.now().date():
+            return self.getTimeCreated()
+        else:
+            return self.getDateCreated() + " " + self.getTimeCreated()
 
 
 class Lagekarte(models.Model):
