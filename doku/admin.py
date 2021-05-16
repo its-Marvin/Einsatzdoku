@@ -2,7 +2,7 @@ from django.contrib import admin
 from .forms import ZugForm, OrtForm
 
 # Register your models here.
-from .models import Fahrzeuge, Ort, Stichwort, Einstellungen, Zug, Einheiten, Einsatzstellen
+from .models import Fahrzeuge, Ort, Stichwort, Einstellungen, Zug
 
 
 class FahrzeugeAdmin(admin.ModelAdmin):

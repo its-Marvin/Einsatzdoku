@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotAllowed
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotAllowed, HttpResponseForbidden
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -8,7 +8,10 @@ import json
 import datetime
 import os
 
-from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug
+from django.utils.html import escape
+
+from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, \
+    Einsatzstellen_Notizen
 from .models import Einsatzstellen, Einheiten
 
 
@@ -82,14 +85,35 @@ def einsatz(request, einsatz_id):
     return render(request, 'doku/einsatz.html', context)
 
 
+def oel_einsatzstelle_notiz(request, einsatz_id, einsatzstelle_id):
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        try:
+            error = ""
+            einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
+            einsatzstelle = get_object_or_404(Einsatzstellen, pk=einsatzstelle_id)
+            notiztext = escape(request.POST.get('Notiz', "Fehler!").strip())
+            if notiztext != "":
+                notiz = Einsatzstellen_Notizen(Einsatzstelle=einsatzstelle, Notiz=notiztext, Einsatz=einsatz)
+                notiz.save()
+            else:
+                error = "Notiz darf nicht leer sein."
+        except Exception:
+            error = "Fehler beim Anlegen einer neuen Notiz."
+        return HttpResponseRedirect(reverse('doku:oel', args=[einsatz_id]))
+    else:
+        return HttpResponseRedirect(reverse('doku:oel', args=[einsatz_id]))
+
+
 def oel(request, einsatz_id):
     if request.method == "GET":
         return oel_response(request, einsatz_id)
     elif request.method == "POST":
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
         error = None
         ortFrei = None
-        if not request.user.is_authenticated:
-            raise PermissionDenied
         autor = request.user if request.user.is_authenticated else None
         try:
             einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
@@ -102,11 +126,15 @@ def oel(request, einsatz_id):
                     raise Exception("Es muss ein Ort ausgewählt werden!")
                 ort = get_object_or_404(Ort, Kurzname=request.POST['Ort'])
                 if ort.Kurzname == "ZZZ":
-                    ortFrei = request.POST.get('Freitext', "")
+                    ortFrei = escape(request.POST.get('Freitext', ""))
                     if not ortFrei:
                         raise Exception("Das Freitext Feld muss ausgefüllt sein!")
-                anmerkungen = request.POST.get('Anmerkungen', "")
-                e = Einsatzstellen(Ort=ort, OrtFrei=ortFrei, Einsatz=einsatz, Name=name, Anmerkungen=anmerkungen)
+                anmerkungen = escape(request.POST.get('Anmerkungen', "").strip())
+                e = Einsatzstellen(Ort=ort, OrtFrei=ortFrei, Einsatz=einsatz, Name=name)
+                e.save()
+                if anmerkungen != "":
+                    notiz = Einsatzstellen_Notizen(Einsatz=einsatz, Notiz=anmerkungen, Einsatzstelle=e)
+                    notiz.save()
                 e_ort = ortFrei if ortFrei else ort.Langname
                 inhalt = "Neue Einsatzstelle: \"" + name + ", " + e_ort + "\""
                 m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
@@ -152,6 +180,7 @@ def oel_response(request, einsatz_id, error=None):
     einsatzstellen = Einsatzstellen.objects.filter(Einsatz=einsatz_id)
     einheiten = Einheiten.objects.filter(Einsatz=einsatz_id)
     alle_Orte = Ort.objects.order_by('Kurzname')
+    notizen = Einsatzstellen_Notizen.objects.filter(Einsatz=einsatz_id)
     context = {
         'training': einsatz.Training,
         'einstellungen': einstellungen,
@@ -161,6 +190,7 @@ def oel_response(request, einsatz_id, error=None):
         'einsatzstellen': einsatzstellen,
         'einheiten': einheiten,
         'alle_Orte': alle_Orte,
+        'notizen': notizen,
         'error': error,
     }
     return render(request, 'doku/oel.html', context)

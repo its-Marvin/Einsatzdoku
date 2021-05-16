@@ -62,3 +62,15 @@ $(document).ready(function() {
 $(document).ready(function() {
     $('.minimize-button').prev().css("cursor", "pointer");
 });
+
+// Textarea auto-resize
+$("textarea").each(function () {
+  this.setAttribute("style", "height:30px;overflow-y:hidden;");
+}).on("input", function () {
+  this.style.height = "auto";
+  if (this.scrollHeight < "30") {
+      this.style.height = "30px"
+  } else {
+      this.style.height = (this.scrollHeight) + "px";
+  }
+});

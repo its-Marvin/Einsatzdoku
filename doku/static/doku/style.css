@@ -265,7 +265,7 @@ form {
 	width: 100%;
 	padding-bottom: 25px;
 }
-input, select {
+input, select, textarea {
 	border: none;
 	border-bottom: 1px solid var(--text-inverse-color);
 	display: block;
@@ -284,7 +284,7 @@ input[type=submit] {
 	margin-bottom: 0;
 	float: left;
 }
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
 	border: 1px solid var(--highlight-color);
 	outline: none;
 }
@@ -546,4 +546,39 @@ button p {
     width: 100% !important;
     height: inherit !important;
     margin: inherit;
+}
+
+.message-time {
+    float: left;
+    margin: 0;
+    width: 85px;
+    padding: 0;
+    padding-left: 5px;
+    border: 1px solid var(--highlight-color);
+    border-radius: 10px;
+}
+
+.message-text {
+    margin: 0;
+    margin-left: 85px;
+    padding: 5px;
+    padding-top: 0;
+    height: auto;
+}
+
+.eingerueckt20 {
+    margin-left: 20px;
+    padding-bottom: 5px;
+}
+.eingerueckt40 {
+    margin-left: 40px;
+    padding-bottom: 5px;
+}
+.eingerueckt60 {
+    margin-left: 60px;
+    padding-bottom: 5px;
+}
+.eingerueckt80 {
+    margin-left: 80px;
+    padding-bottom: 5px;
 }

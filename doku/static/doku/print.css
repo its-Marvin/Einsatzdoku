@@ -74,3 +74,11 @@ a {
 .ArchivText {
     margin-bottom: 10px;
 }
+
+.message-text {
+    margin: 0;
+    margin-left: 60px;
+    padding: 5px;
+    padding-top: 0;
+    height: auto;
+}

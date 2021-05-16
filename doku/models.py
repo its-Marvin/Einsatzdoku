@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from datetime import datetime, timezone
 import pytz
+from django.utils.safestring import mark_safe
 
 
 class Meldung(models.Model):
@@ -141,7 +142,6 @@ class Einsatzstellen(models.Model):
     OrtFrei = models.CharField(max_length=200, null=True)
     Name = models.CharField(max_length=50, null=False, blank=False)
     Einheit = models.ForeignKey('Einheiten', null=True, blank=True, on_delete=models.PROTECT)
-    Anmerkungen = models.TextField(null=False, blank=True, default="")
     Gemeldet = models.DateTimeField(auto_now_add=True)
     Zugewiesen = models.DateTimeField(blank=True, null=True)
     Abgeschlossen = models.DateTimeField(blank=True, null=True)
@@ -154,6 +154,34 @@ class Einsatzstellen(models.Model):
             return self.Name + ", " + self.OrtFrei
         else:
             return self.Name + ", " + self.Ort.Langname
+
+
+class Einsatzstellen_Notizen(models.Model):
+    Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT)
+    Einsatzstelle = models.ForeignKey('Einsatzstellen', on_delete=models.PROTECT)
+    Notiz = models.TextField(null=False, blank=True, default="")
+    Erfasst = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.Notiz + " (" + self.get_time_or_date() + ")"
+
+    def get_html_multiline(self):
+        return mark_safe(self.Notiz.replace("\n", "<br>"))
+
+    def get_time_created(self):
+        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%H:%M')
+
+    def get_date_created(self):
+        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%d %b %Y')
+
+    def get_datetime_short(self):
+        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%a %H:%M')
+
+    def get_time_or_date(self):
+        if self.Erfasst.date() == datetime.now().date():
+            return self.get_time_created()
+        else:
+            return self.get_date_created() + " " + self.get_time_created()
 
 
 class Lagekarte(models.Model):
