@@ -18,7 +18,7 @@
         <ul id="Einheitenliste">
             {% for Einheit in einheiten %}
             <li class="Einheit">
-                <div class="floating-button">{{ Einheit.getAnzahlEinsatzstellen }}</div>{{ Einheit }}
+                <div class="floating-button do-not-print">{{ Einheit.getAnzahlEinsatzstellen }}</div>{{ Einheit }}
             </li>
             {% endfor %}
         </ul>
@@ -47,11 +47,7 @@
             {% for Einsatzstelle in einsatzstellen %}
             {% if Einsatzstelle.Einheit %}
             {% if not Einsatzstelle.Abgeschlossen %}
-            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};"
-                data-toggle="tooltip"
-                title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}<br>Übernommen:<br>{{ Einsatzstelle.Zugewiesen }}"
-                data-html="true"
-                data-placement="bottom">
+            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};">
                 <div class="floating-button">
                     <form name="Einsatzstelle_fertig" action="{% url 'doku:oel' einsatz.Nummer %}" method="post" autocomplete="off">
                         {% csrf_token %}
@@ -63,8 +59,12 @@
                 <div>
                 {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
                 </div>
-            <ul class="EinsatzstelleMenu noClick">
+                <ul class="EinsatzstelleMenu noClick">
                     <li>
+                        <div class="eingerueckt20">Gemeldet:</div>
+                        <div class="eingerueckt60">{{ Einsatzstelle.Gemeldet }}</div>
+                        <div class="eingerueckt20">Übernommen:</div>
+                        <div class="eingerueckt60">{{ Einsatzstelle.Zugewiesen }}</div>
                         <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
                             {% csrf_token %}
                             <textarea name="Notiz" placeholder="neue Notiz hinzufügen"></textarea>
@@ -72,10 +72,10 @@
                         </form>
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
-                               <li>
-                                   <div class="message-time">{{ notiz.getTimeOrDate }}:</div>
-                                   <div class="message-text">{{ notiz.Notiz }}</div>
-                               </li>
+                                <div>
+                                <div class="message-time">{{ notiz.get_datetime_short }}</div>
+                                <div class="message-text">{{ notiz.get_html_multiline }}</div>
+                                </div>
                             {% endif %}
                         {% endfor %}
                     </li>
@@ -96,24 +96,28 @@
             {% for Einsatzstelle in einsatzstellen %}
             {% if Einsatzstelle.Einheit %}
             {% if Einsatzstelle.Abgeschlossen %}
-            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};"
-                data-toggle="tooltip"
-                title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}<hr>Übernommen:<br>{{ Einsatzstelle.Zugewiesen }}<hr>Abgeschlossen:<br>{{ Einsatzstelle.Abgeschlossen }}"
-                data-html="true"
-                data-placement="bottom">
+            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};">
                 {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
             <ul class="EinsatzstelleMenu noClick">
                     <li>
+                        <div class="eingerueckt20">Gemeldet:</div>
+                        <div class="eingerueckt60">{{ Einsatzstelle.Gemeldet }}</div>
+                        <div class="eingerueckt20">Übernommen:</div>
+                        <div class="eingerueckt60">{{ Einsatzstelle.Zugewiesen }}</div>
+                        <div class="eingerueckt20">Abgeschlossen:</div>
+                        <div class="eingerueckt60">{{ Einsatzstelle.Abgeschlossen }}</div>
                         <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
                             {% csrf_token %}
-                            <input name="Notiz" type="text" placeholder="neue Notiz hinzufügen">
+                            <textarea name="Notiz" placeholder="neue Notiz hinzufügen"></textarea>
                             <input type="submit" class="check" value="Hinzufügen">
                         </form>
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                <li>
-                                   <div class="message-time">{{ notiz.getTimeOrDate }}:</div>
-                                   <div class="message-text">{{ notiz.Notiz }}</div>
+                                <div>
+                                <div class="message-time">{{ notiz.get_datetime_short }}</div>
+                                <div class="message-text">{{ notiz.get_html_multiline }}</div>
+                                </div>
                                </li>
                             {% endif %}
                         {% endfor %}
@@ -166,13 +170,12 @@
         <ul id="offen">
             {% for Einsatzstelle in einsatzstellen %}
             {% if not Einsatzstelle.Einheit %}
-            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};"
-                data-toggle="tooltip" title="Gemeldet:<br>{{ Einsatzstelle.Gemeldet }}"
-                data-html="true"
-                data-placement="left">
+            <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};">
                 {{ Einsatzstelle }}
                 <ul class="EinsatzstelleMenu noClick">
                     <li>
+                        <div class="eingerueckt20">Gemeldet:</div>
+                        <div class="eingerueckt60">{{ Einsatzstelle.Gemeldet }}</div>
                         <form name="Einsatzuebernahme" action="{% url 'doku:oel' einsatz.Nummer %}" method="post" autocomplete="off">
                             {% csrf_token %}
                             <input hidden class="do-not-show" name="Einsatzstelle" value="{{ Einsatzstelle.pk }}">
@@ -190,14 +193,16 @@
                     <li>
                         <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
                             {% csrf_token %}
-                            <input name="Notiz" type="text" placeholder="neue Notiz hinzufügen">
+                            <textarea name="Notiz" placeholder="neue Notiz hinzufügen"></textarea>
                             <input type="submit" class="check" value="Hinzufügen">
                         </form>
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                <li>
-                                   <div class="message-time">{{ notiz.getTimeOrDate }}:</div>
-                                   <div class="message-text">{{ notiz.Notiz }}</div>
+                                <div>
+                                <div class="message-time">{{ notiz.get_datetime_short }}</div>
+                                <div class="message-text">{{ notiz.get_html_multiline }}</div>
+                                </div>
                                </li>
                             {% endif %}
                         {% endfor %}

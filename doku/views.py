@@ -8,6 +8,8 @@ import json
 import datetime
 import os
 
+from django.utils.html import escape
+
 from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, \
     Einsatzstellen_Notizen
 from .models import Einsatzstellen, Einheiten
@@ -91,7 +93,7 @@ def oel_einsatzstelle_notiz(request, einsatz_id, einsatzstelle_id):
             error = ""
             einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
             einsatzstelle = get_object_or_404(Einsatzstellen, pk=einsatzstelle_id)
-            notiztext = request.POST.get('Notiz', "Fehler!").strip()
+            notiztext = escape(request.POST.get('Notiz', "Fehler!").strip())
             if notiztext != "":
                 notiz = Einsatzstellen_Notizen(Einsatzstelle=einsatzstelle, Notiz=notiztext, Einsatz=einsatz)
                 notiz.save()
@@ -99,7 +101,7 @@ def oel_einsatzstelle_notiz(request, einsatz_id, einsatzstelle_id):
                 error = "Notiz darf nicht leer sein."
         except Exception:
             error = "Fehler beim Anlegen einer neuen Notiz."
-        return oel_response(request, einsatz_id, error=error)
+        return HttpResponseRedirect(reverse('doku:oel', args=[einsatz_id]))
     else:
         return HttpResponseRedirect(reverse('doku:oel', args=[einsatz_id]))
 
@@ -112,8 +114,6 @@ def oel(request, einsatz_id):
             return HttpResponseForbidden()
         error = None
         ortFrei = None
-        if not request.user.is_authenticated:
-            raise PermissionDenied
         autor = request.user if request.user.is_authenticated else None
         try:
             einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
@@ -126,10 +126,10 @@ def oel(request, einsatz_id):
                     raise Exception("Es muss ein Ort ausgewählt werden!")
                 ort = get_object_or_404(Ort, Kurzname=request.POST['Ort'])
                 if ort.Kurzname == "ZZZ":
-                    ortFrei = request.POST.get('Freitext', "")
+                    ortFrei = escape(request.POST.get('Freitext', ""))
                     if not ortFrei:
                         raise Exception("Das Freitext Feld muss ausgefüllt sein!")
-                anmerkungen = request.POST.get('Anmerkungen', "").strip()
+                anmerkungen = escape(request.POST.get('Anmerkungen', "").strip())
                 e = Einsatzstellen(Ort=ort, OrtFrei=ortFrei, Einsatz=einsatz, Name=name)
                 e.save()
                 if anmerkungen != "":

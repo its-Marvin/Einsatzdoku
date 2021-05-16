@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from datetime import datetime, timezone
 import pytz
+from django.utils.safestring import mark_safe
 
 
 class Meldung(models.Model):
@@ -162,19 +163,25 @@ class Einsatzstellen_Notizen(models.Model):
     Erfasst = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.Notiz + " (" + self.getTimeOrDate() + ")"
+        return self.Notiz + " (" + self.get_time_or_date() + ")"
 
-    def getTimeCreated(self):
+    def get_html_multiline(self):
+        return mark_safe(self.Notiz.replace("\n", "<br>"))
+
+    def get_time_created(self):
         return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%H:%M')
 
-    def getDateCreated(self):
-        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%d %B %Y')
+    def get_date_created(self):
+        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%d %b %Y')
 
-    def getTimeOrDate(self):
+    def get_datetime_short(self):
+        return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%a %H:%M')
+
+    def get_time_or_date(self):
         if self.Erfasst.date() == datetime.now().date():
-            return self.getTimeCreated()
+            return self.get_time_created()
         else:
-            return self.getDateCreated() + " " + self.getTimeCreated()
+            return self.get_date_created() + " " + self.get_time_created()
 
 
 class Lagekarte(models.Model):
