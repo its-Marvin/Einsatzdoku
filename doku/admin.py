@@ -2,7 +2,7 @@ from django.contrib import admin
 from .forms import ZugForm, OrtForm
 
 # Register your models here.
-from .models import Fahrzeuge, Ort, Stichwort, Einstellungen, Zug, Einheiten, Einsatzstellen, Einsatzstellen_Notizen
+from .models import Fahrzeuge, Ort, Stichwort, Einstellungen, Zug
 
 
 class FahrzeugeAdmin(admin.ModelAdmin):
@@ -27,4 +27,3 @@ admin.site.register(Ort, OrtAdmin)
 admin.site.register(Stichwort, StichwortAdmin)
 admin.site.register(Einstellungen)
 admin.site.register(Zug, ZugAdmin)
-admin.site.register(Einsatzstellen_Notizen)
