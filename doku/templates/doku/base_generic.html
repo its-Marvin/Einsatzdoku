@@ -7,6 +7,7 @@
 	<link rel="shortcut icon" href="{%  static 'doku/favicon.ico' %}">
 	<link rel="stylesheet" href="{%  static 'doku/bootstrap.min.css' %}">
   	<script src="{%  static 'doku/jquery.min.js' %}"></script>
+
   	<script src="{%  static 'doku/bootstrap.min.js' %}"></script>
 	<script src="{%  static 'doku/popper.min.js' %}"></script>
 	<!--
@@ -76,7 +77,15 @@
 	{% block content %}
 	{% endblock %}
 	</div>
-	<script type="text/javascript" src="{% static 'doku/scripts.js' %}"></script>
+	<!-- Custom scripts -->
+    <script type="text/javascript" src="{% static 'doku/scripts.js' %}"></script>
+    <!-- React basics
+    <script type="text/javascript" src="{% static 'doku/react.production.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'doku/react-dom.production.min.js' %}"></script>-->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <!-- React components -->
+    <script type="module" src="{% static 'doku/component-einsatz.js' %}"></script>
 	{% if autor and not autor.profile.nightmode %}
 		<script>
 			$(".nightmode").html("Nachtmodus");

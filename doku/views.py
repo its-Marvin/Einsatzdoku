@@ -39,6 +39,12 @@ def index(request):
     return render(request, 'doku/index.html', context)
 
 
+def get_aktive_einsaetze(request):
+    alle_einsaetze = Einsatz.objects.filter(Training=False).order_by('-Nummer')
+    data = serializers.serialize('json', alle_einsaetze)
+    return JsonResponse(data, safe=False)
+
+
 def index_training(request):
     Ort.objects.get_or_create(PLZ=0, Kurzname="ZZZ", Langname="Freitext")
     einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
@@ -441,6 +447,12 @@ def summe_Personal(request, einsatz_id):
         'atemschutz': agt
     }
     return JsonResponse(json.dumps(summe), safe=False)
+
+
+def get_ort(request, ort_id):
+    o = get_object_or_404(Ort, pk=ort_id)
+    o = serializers.serialize('json', [o])
+    return JsonResponse(o, safe=False)
 
 
 def toggleNightmode(request):
