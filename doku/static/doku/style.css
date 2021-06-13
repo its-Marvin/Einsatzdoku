@@ -522,6 +522,7 @@ button p {
 
 .Einsatzstelle {
     font-weight: normal;
+    cursor: pointer;
 }
 .Anmerkung {
     font-weight: normal;

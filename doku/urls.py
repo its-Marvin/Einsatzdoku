@@ -5,7 +5,10 @@ from . import views
 app_name = 'doku'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('Einsatz', views.neuer_Einsatz, name='neuerEinsatz'),
+    path('Einsatz/all', views.get_aktive_einsaetze, name='alleEinsaetze'),
+    path('Einsatz/add', views.neuer_Einsatz, name='neuerEinsatz'),
+    path('Ort/<int:ort_id>', views.get_ort, name='getOrt'),
+    path('Stichwort/<str:stichwort_id>', views.get_stichwort, name='getStichwort'),
     path('Nachtmodus', views.toggleNightmode, name='toggleNightmode'),
     path('<int:einsatz_id>', views.einsatz, name='einsatz'),
     path('<int:einsatz_id>/Einsatznummer', views.einsatznummer, name='einsatznummer'),

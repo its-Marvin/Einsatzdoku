@@ -48,6 +48,7 @@
             {% if Einsatzstelle.Einheit %}
             {% if not Einsatzstelle.Abgeschlossen %}
             <li class="Einsatzstelle" style="background-color: {{ Einsatzstelle.Ort.Farbe }};">
+                {% if autor %}
                 <div class="floating-button">
                     <form name="Einsatzstelle_fertig" action="{% url 'doku:oel' einsatz.Nummer %}" method="post" autocomplete="off">
                         {% csrf_token %}
@@ -56,6 +57,7 @@
                         <input type="submit" class="check" value="erledigt">
                     </form>
                 </div>
+                {% endif %}
                 <div>
                 {{ Einsatzstelle.Einheit }} @ {{ Einsatzstelle }}
                 </div>
@@ -65,11 +67,13 @@
                         <div class="eingerueckt60">{{ Einsatzstelle.Gemeldet }}</div>
                         <div class="eingerueckt20">Übernommen:</div>
                         <div class="eingerueckt60">{{ Einsatzstelle.Zugewiesen }}</div>
+                        {% if autor %}
                         <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
                             {% csrf_token %}
                             <textarea name="Notiz" placeholder="neue Notiz hinzufügen"></textarea>
                             <input type="submit" class="check" value="Hinzufügen">
                         </form>
+                        {% endif %}
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                 <div>
@@ -106,11 +110,13 @@
                         <div class="eingerueckt60">{{ Einsatzstelle.Zugewiesen }}</div>
                         <div class="eingerueckt20">Abgeschlossen:</div>
                         <div class="eingerueckt60">{{ Einsatzstelle.Abgeschlossen }}</div>
+                        {% if autor %}
                         <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
                             {% csrf_token %}
                             <textarea name="Notiz" placeholder="neue Notiz hinzufügen"></textarea>
                             <input type="submit" class="check" value="Hinzufügen">
                         </form>
+                        {% endif %}
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                <li>
@@ -176,6 +182,7 @@
                     <li>
                         <div class="eingerueckt20">Gemeldet:</div>
                         <div class="eingerueckt60">{{ Einsatzstelle.Gemeldet }}</div>
+                    {% if autor %}
                         <form name="Einsatzuebernahme" action="{% url 'doku:oel' einsatz.Nummer %}" method="post" autocomplete="off">
                             {% csrf_token %}
                             <input hidden class="do-not-show" name="Einsatzstelle" value="{{ Einsatzstelle.pk }}">
@@ -189,13 +196,16 @@
                             </select>
                             <input type="submit" class="check" value="Einsatz zuweisen">
                         </form>
+                        {% endif %}
                     </li>
                     <li>
+                    {% if autor %}
                         <form name="neueNotiz" action="{% url 'doku:neueNotiz' einsatz.Nummer Einsatzstelle.pk %}" method="post" autocomplete="off">
                             {% csrf_token %}
                             <textarea name="Notiz" placeholder="neue Notiz hinzufügen"></textarea>
                             <input type="submit" class="check" value="Hinzufügen">
                         </form>
+                        {% endif %}
                         {% for notiz in notizen %}
                             {% if notiz.Einsatzstelle == Einsatzstelle %}
                                <li>
