@@ -9,7 +9,8 @@ class Einsatzliste extends React.Component {
         this.state = {
             error: null,
             isLoaded: false,
-            data: '[]'
+            data: '[]',
+            orte: {}
         };
     }
 
@@ -17,7 +18,7 @@ class Einsatzliste extends React.Component {
         this.fetchEinsaetze();
         this.interval = setInterval(() => {
             this.fetchEinsaetze()
-        }, 5000);
+        }, 500);
     }
 
     componentWillUnmount() {
@@ -43,41 +44,80 @@ class Einsatzliste extends React.Component {
             )
     }
 
-    get_ort_wrapper(ort_id) {
-        return get_ort(ort_id).then(res => {
-            document.querySelectorAll('.replace_' + ort_id)
+    async get_ort_wrapper(ort_id) {
+        if (!(ort_id in this.state.orte)) {
+            this.state.orte[ort_id] = await get_ort(ort_id);
+        }
+        let ort = this.state.orte[ort_id];
+        document.querySelectorAll('.o_' + ort_id)
                 .forEach(domContainer => {
-                    domContainer.innerHTML = res.toString();
+                    domContainer.innerHTML = JSON.parse(ort)[0].fields.Langname;
                 });
-        });
+    }
+
+    render_aktiv(einsatz) {
+        let childs = [];
+        childs.push(einsatz.fields.Adresse + " in ");
+        if (einsatz.fields.OrtFrei == null || einsatz.fields.OrtFrei == '') {
+            childs.push(e('span',
+                {className: 'o_' + einsatz.fields.Ort, key: einsatz.pk + "_o"}));
+            this.get_ort_wrapper(einsatz.fields.Ort);
+        } else {
+            childs.push(e('span', {key: einsatz.pk + "_o"}, einsatz.fields.OrtFrei));
+        }
+        if (einsatz.fields.extNummer !== null) {
+            childs.push(" (#" + einsatz.fields.extNummer + ")");
+        }
+        childs.push(e('b', {key: einsatz.pk + "_s"}, einsatz.fields.Stichwort));
+        let list = e('li', {className: 'Wichtig', key: einsatz.pk}, childs);
+        let link = e('a', {href: '/doku/' + einsatz.pk, key: einsatz.pk}, list)
+        return link;
+    }
+
+    render_beendet(einsatz) {
+        let childs = [];
+        childs.push(einsatz.fields.Adresse + " in ");
+        if (einsatz.fields.OrtFrei == null || einsatz.fields.OrtFrei == '') {
+            childs.push(e('span',
+                {className: 'o_' + einsatz.fields.Ort, key: einsatz.pk + "_o"}));
+            this.get_ort_wrapper(einsatz.fields.Ort);
+        } else {
+            childs.push(e('span', {key: einsatz.pk + "_o"}, einsatz.fields.OrtFrei));
+        }
+        childs.push(e('b', {key: einsatz.pk + "_s"}, einsatz.fields.Stichwort));
+        let subchilds = [];
+        if (einsatz.fields.extNummer !== null) {
+            subchilds.push(e('p', {key: einsatz.pk + "_n"},"Einsatz-Nr: " + einsatz.fields.extNummer));
+        }
+        let dateoptions = {day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"};
+        let starttime = new Date(einsatz.fields.Erstellt)
+        let start = e('li', {key: einsatz.pk + "_start"}, "Von: " +
+            starttime.toLocaleString(undefined, dateoptions));
+        let endtime = new Date(einsatz.fields.Ende)
+        let ende = e('li', {key: einsatz.pk + "_ende"}, "Bis: " +
+            endtime.toLocaleString(undefined, dateoptions));
+        subchilds.push(e('ul', {key: einsatz.pk + "_t"}, [start, ende]))
+
+        childs.push(subchilds);
+
+        let list = e('li', {key: einsatz.pk}, childs);
+        let link = e('a', {href: '/doku/' + einsatz.pk, key: einsatz.pk}, list)
+        return link;
     }
 
     render() {
         let json = JSON.parse(this.state.data);
         let array = [];
         for (let i = 0; i < json.length; i++) {
-            if (this.props.onlyNew && json[i].fields.Ende == null) {
-                // aktive Einsätze
-                let el = "#" + json[i].pk + " - " + json[i].fields.Adresse;
-                el += " in ";
-                el += "<div class=\"replace_" + json[i].fields.Ort + "\"></div>"
-                this.get_ort_wrapper(json[i].fields.Ort);
-                // json[i].fields.Freitext === null ? el += json[i].fields.Freitext : el += get_ort(json[i].fields.Ort).Kurzname;
-                if (json[i].fields.extNummer !== null) {
-                    el = el + " (#" + json[i].fields.extNummer + ")"
-                }
-                let einsatz = e('li', {className: 'Wichtig', key: json[i].pk}, el);
-                let link = e('a', {href: '/doku/' + json[i].pk, key: json[i].pk}, einsatz)
-                array.push(link);
-            } else if (!this.props.onlyNew && json[i].fields.Ende != null) {
+            const einsatz = json[i];
+            if (this.props.onlyNew && einsatz.fields.Ende == null) {
+                // aktive Einsätze in umgekehrter Reihenfolge anzeigen, älteste zuerst
+                array.unshift(this.render_aktiv(einsatz));
+            } else if (!this.props.onlyNew &&
+                json[i].fields.Ende != null &&
+                this.props.year === new Date(einsatz.fields.Erstellt).getFullYear().toString()) {
                 // beendete Einsätze
-                let el = "#" + json[i].pk + " - " + json[i].fields.Adresse;
-                if (json[i].fields.extNummer !== null) {
-                    el = el + " (#" + json[i].fields.extNummer + ")"
-                }
-                let einsatz = e('li', {key: json[i].pk}, el);
-                let link = e('a', {href: '/doku/' + json[i].pk, key: json[i].pk}, einsatz)
-                array.push(link);
+                array.push(this.render_beendet(einsatz));
             }
         }
         return e('ul', null, array);
@@ -87,9 +127,11 @@ class Einsatzliste extends React.Component {
 document.querySelectorAll('.einsatzliste')
     .forEach(domContainer => {
         let onlyNew = false;
+        let year = new Date().getFullYear();
         if (domContainer.classList.contains('offene-einsaetze')) onlyNew = true;
+        else if (domContainer.classList.length === 2) year = domContainer.classList[1];
         ReactDOM.render(
-            e(Einsatzliste, {onlyNew: onlyNew, nav: false}),
+            e(Einsatzliste, {onlyNew: onlyNew, nav: false, year: year}),
             domContainer
         );
     });

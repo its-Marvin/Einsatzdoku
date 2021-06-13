@@ -52,6 +52,7 @@
 		<div class="minimize-button active">-</div>
 		<div class="minimize-this" style="display:block;">
 			<div class="spacer"></div>
+            <!--
 			<ul>
 			{% for einsatz in alle_Einsaetze %}
 				{% if not einsatz.Ende %}
@@ -71,7 +72,7 @@
 				{% endif %}
 			{% endfor %}
 			</ul>
-            <hr />
+            <hr />-->
             <div class="einsatzliste offene-einsaetze"></div>
 		</div>
 	</div>
@@ -88,35 +89,7 @@
 				<div class="minimize-this" style="display:none;">
 			{% endif %}
 				<div class="spacer"></div>
-				<ul>
-				{% for einsatz in alle_Einsaetze %}
-					{% if einsatz.Ende %}
-					{% if einsatz.getYear == jahr %}
-					<a href="{% url 'doku:einsatz' einsatz.Nummer %}">
-					<li>{{ einsatz.Stichwort.Kurzname }}
-						{% if einsatz.OrtFrei %}
-							{{ einsatz.OrtFrei }}
-						{% else %}
-							{{ einsatz.Ort.Langname }}
-						{% endif %}
-						{% if einsatz.extNummer %}
-							<b>#{{ einsatz.extNummer }}</b>
-						{% endif %}
-						<ul>
-							<li>
-								Von: {{ einsatz.Erstellt }}
-							</li>
-							<li>
-								Bis: {{ einsatz.Ende }}
-							</li>
-						</ul>
-					</li>
-					</a>
-					{% endif %}
-					{% endif %}
-				{% endfor %}
-				</ul>
-                <div class="einsatzliste"></div>
+                <div class="einsatzliste {{ jahr }}"></div>
 			</div>
 		{% endfor %}
 	</div>
