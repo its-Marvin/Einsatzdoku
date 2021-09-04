@@ -406,10 +406,7 @@ def einsatzende(request, einsatz_id):
 
 def meldung(request, einsatz_id):
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
-    try:
-        lastID = request.GET['lastID']
-    except:
-        lastID = 0
+    lastID = request.GET.get('lastID', 0)
     neueMeldungen = serializers.serialize("json", Meldung.objects.select_related().filter(Einsatz=einsatz).filter(pk__gt=lastID))
     return JsonResponse(neueMeldungen, safe=False)
 

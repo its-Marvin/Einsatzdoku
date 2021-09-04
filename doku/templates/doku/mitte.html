@@ -27,23 +27,8 @@
 			</div>
 		{% endif %}
 		{% if alle_Meldungen %}
-			<ul id="Meldungsliste" class="do-not-print">
-			{% for Meldung in alle_Meldungen %}
-				<li
-					class="Meldung {% if Meldung.Wichtig %}Wichtig {% endif %}"
-					id="{{ Meldung.pk }}"
-					{% if not Meldung.Wichtig %}style="background-color:{{ Meldung.Zug.Farbe }};"{% endif %}
-					data-toggle="tooltip"
-					{% if Meldung.Autor.last_name %}
-						title="{{ Meldung.Autor.first_name }} {{ Meldung.Autor.last_name }} am {{ Meldung.Erstellt }}"
-					{% else %}
-						title="{{ Meldung.Autor }} am {{ Meldung.Erstellt }}"
-					{% endif %}
-					data-placement="bottom">
-						{{ Meldung.getTimeOrDate }} - {{ Meldung.Inhalt }}
-				</li>
-			{% endfor %}
-			</ul>
+			<ul id="Meldungsliste" class="do-not-print"></ul>
+            <div class="Meldungsliste"></div>
 			<table class="do-not-show">
 				<tr>
 					<th class="spalte1">Meldungstext</th>
@@ -53,52 +38,13 @@
 				</tr>
 				{% for Meldung in alle_Meldungen %}
 					<tr>
-						<td class="spalte1">{{ Meldung.Inhalt }}{% if Meldung.Wichtig %}</b>{% endif %}</td>
+						<td class="spalte1">{{ Meldung.Inhalt }}{% if Meldung.Wichtig %}{% endif %}</td>
 						<td class="spalte2">{{ Meldung.Autor.first_name }} {{ Meldung.Autor.last_name }}</td>
 						<td class="spalte3">{{ Meldung.Erstellt }}</td>
 						<td class="spalte4">{% if Meldung.Wichtig %}&#10004;{% else %}X{% endif %}</td>
 					</tr>
 				{% endfor %}
 			</table>
-			{% if not einsatz.Ende %}
-			<script>
-				var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-				function csrfSafeMethod(method) {
-					// these HTTP methods do not require CSRF protection
-					return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-				}
-				$.ajaxSetup({
-					beforeSend: function(xhr, settings) {
-						if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-							xhr.setRequestHeader("X-CSRFToken", csrftoken);
-						}
-					}
-				});
-				// Meldungen aktualisieren
-				(function update_Meldungen() {
-					lastIDfound = $(".Meldung").first().attr('id');
-					$.get({
-						method: "GET",
-						url: "{% url 'doku:Meldung' einsatz.Nummer %}",
-						data: {lastID: lastIDfound},
-						success: function(data) {
-							var jsonResponse = JSON.parse(data);
-							for (var i = 0; i < jsonResponse.length; i++){
-								var obj = jsonResponse[i];
-								if (obj.fields.Wichtig) {
-									$(".Meldung").first().before('<li class="Meldung Wichtig" id="' + obj.pk + '">' + obj.fields.Erstellt + " - " + obj.fields.Inhalt + '<ul class="print"><li>Verfasst von ' + obj.fields.Autor + ' am ' + obj.fields.Erstellt + '</li></ul></li>');
-								} else {
-									$(".Meldung").first().before('<li class="Meldung" id="' + obj.pk + '">' + obj.fields.Erstellt + " - " + obj.fields.Inhalt + '<ul class="print"><li>Verfasst von ' + obj.fields.Autor + ' am ' + obj.fields.Erstellt + '</li></ul></li>');
-								}
-							}
-						},
-						 complete: function() {
-							 setTimeout(update_Meldungen, 1000);
-						 }
-					})
-				})();
-			</script>
-			{% endif %}
 		{% endif %}
     </div>
 </div>
