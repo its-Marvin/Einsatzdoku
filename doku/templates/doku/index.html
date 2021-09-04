@@ -52,27 +52,6 @@
 		<div class="minimize-button active">-</div>
 		<div class="minimize-this" style="display:block;">
 			<div class="spacer"></div>
-            <!--
-			<ul>
-			{% for einsatz in alle_Einsaetze %}
-				{% if not einsatz.Ende %}
-				<a href="{% url 'doku:einsatz' einsatz.Nummer %}">
-					<li {% if not einsatz.Ende %}class="Wichtig"{% endif %}>
-						#{{ einsatz.Nummer }} - {{ einsatz.Stichwort.Langname }}
-						{% if einsatz.OrtFrei %}
-							{{ einsatz.OrtFrei }}
-						{% else %}
-							{{ einsatz.Ort.Langname }}
-						{% endif %}
-						{% if einsatz.extNummer %}
-							(#{{ einsatz.extNummer }})
-						{% endif %}
-					</li>
-				</a>
-				{% endif %}
-			{% endfor %}
-			</ul>
-            <hr />-->
             <div class="einsatzliste offene-einsaetze"></div>
 		</div>
 	</div>

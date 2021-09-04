@@ -86,6 +86,7 @@
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>-->
     <!-- React components -->
     <script type="module" src="{% static 'doku/component-einsatz.js' %}"></script>
+    <script type="module" src="{% static 'doku/component-meldung.js' %}"></script>
 	{% if autor and not autor.profile.nightmode %}
 		<script>
 			$(".nightmode").html("Nachtmodus");
