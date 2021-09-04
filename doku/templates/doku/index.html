@@ -14,15 +14,15 @@
 					  method="post" autocomplete="off">
 					{% csrf_token %}
 					<input hidden class="do-not-show" autocomplete="false">
-					<select class="Ort" name="Ort">
+					<select class="Ort" name="Ort" required>
 							<option value="" disabled selected>Ort</option>
 						{% for Ort in alle_Orte %}
 							<option value="{{ Ort.Kurzname }}">{{ Ort.Langname }}</option>
 						{% endfor %}
 					</select>
 					<input hidden class="Freitext" name="Freitext" placeholder="Freitext Ort">
-					<input name="Adresse" placeholder="Straße oder Objekt" maxlength="30" size="30" required/>
-					<select name="Stichwort">
+					<input name="Adresse" placeholder="Straße oder Objekt" maxlength="30" size="30"/>
+					<select name="Stichwort" required>
 							<option value="" disabled selected>Alarmstichwort</option>
 						{% for Stichwort in alle_Stichworte %}
 							<option value="{{ Stichwort.Kurzname }}">

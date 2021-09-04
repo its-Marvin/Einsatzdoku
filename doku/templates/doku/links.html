@@ -25,7 +25,8 @@
         {% endif %}
         {% if einstellungen.Einsatzleiter %}
         <b>Einsatzleiter:</b><br>
-            {% if autor and not einsatz.Ende %}
+            {% if not einsatz.Ende or not einsatz.Einsatzleiter %}
+                {% if autor %}
                 <div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
                     <input name="einsatzleiter"
                            placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}
@@ -39,6 +40,7 @@
                         $.post( url , { einsatzleiter : einsatzleiter } );
                     })
                 </script>
+                {% endif %}
             {% else %}
                 &nbsp;&nbsp;&nbsp;{% if einsatz.Einsatzleiter %}
                     {{ einsatz.Einsatzleiter }}
@@ -49,12 +51,42 @@
             {% endif %}
         {% endif %}
         <b>Einsatzstichwort:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Stichwort }}<br>
-        <b>Adresse:</b><br>&nbsp;&nbsp;&nbsp;
+        <b>Adresse:</b><br />
+        {% if not einsatz.Ende or not einsatz.Adresse %}
+                {% if autor %}
+                <div id="adresse"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
+                    <input id="adresse-input"
+                           name="adresse"
+                           placeholder="Straße/Objekt, " {% if einsatz.Adresse %}
+                           value="{{ einsatz.Adresse }}"{% endif %}
+                           autocomplete="false">
+                </div>
+                    &nbsp;&nbsp;&nbsp;{{ einsatz.Ort }}
+                <script>
+                    $("#adresse").focusout(function(){
+                        var adresse = $("input[name='adresse']").val();
+                        let url = "{% url 'doku:adresse' einsatz.Nummer %}";
+                        $.post( url , { adresse : adresse } );
+                    })
+                </script>
+                {% endif %}
+            {% else %}
+            &nbsp;&nbsp;
+                {% if einsatz.Adresse %}
+                    {{ einsatz.Adresse }},
+                {% endif %}
+                {% if einsatz.OrtFrei %}
+                    {{ einsatz.OrtFrei }}
+                {% else %}
+                    {{ einsatz.Ort.Langname }}
+                {% endif %}
+            {% endif %}&nbsp;&nbsp;&nbsp;
         <a target="_blank"
            class="do-not-print"
            href="https://www.google.de/maps/place/{{ einsatz.getMapsCompatibleAdress }}/200m/data=!3m1!1e3">
-            {{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}
-            {% endif %}<br></a>
+            <span class="i-map"></span>
+        </a>
+        <br>
         <span class="do-not-show">{{ einsatz.Adresse }}, {% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}
             {% endif %}<br /></span>
         <b>Einsatzbeginn:</b><br>&nbsp;&nbsp;&nbsp;{{ einsatz.Erstellt }}<br>
@@ -81,7 +113,7 @@
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
         <div class="spacer"></div>
-        {% if autor and not einsatz.Ende %}
+        {% if autor %}
             <form id="neue_Person"
                   name="neue_Person"
                   action="{% url 'doku:neuePerson' einsatz.Nummer %}"
