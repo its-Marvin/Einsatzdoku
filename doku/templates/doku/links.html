@@ -81,7 +81,7 @@
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
         <div class="spacer"></div>
-        {% if autor and not einsatz.Ende %}
+        {% if autor %}
             <form id="neue_Person"
                   name="neue_Person"
                   action="{% url 'doku:neuePerson' einsatz.Nummer %}"
