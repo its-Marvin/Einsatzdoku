@@ -306,6 +306,18 @@ def einsatzleiter(request, einsatz_id):
     return HttpResponse("Success")
 
 
+def adresse(request, einsatz_id):
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+    einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
+    try:
+        einsatz.Adresse = request.POST['adresse']
+        einsatz.save()
+    except:
+        return HttpResponseServerError()
+    return HttpResponse("Success")
+
+
 def neue_Meldung(request, einsatz_id):
     if not request.user.is_authenticated:
         raise PermissionDenied
