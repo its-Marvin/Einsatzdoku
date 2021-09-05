@@ -59,6 +59,7 @@
                     {% endfor %}
                 </ul>
             {% endif %}
+            {% if autor and not einsatz.Ende %}
             <form name="neuer_Zug"
                   action="{% url 'doku:neuerZug' einsatz.Nummer %}"
                   method="post"
@@ -70,6 +71,7 @@
                 <input name="Atemschutz" placeholder="AGT" type="number" size="5" min="0">
                 <input type="submit" value="Hinzufügen / Ändern">
             </form>
+            {% endif %}
             <script>
                 $.get({
                     method: "GET",
