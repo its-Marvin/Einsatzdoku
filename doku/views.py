@@ -470,6 +470,12 @@ def get_stichwort(request, stichwort_id):
     return JsonResponse(o, safe=False)
 
 
+def get_zug(request, zug_id):
+    o = get_object_or_404(Zug, pk=zug_id)
+    o = serializers.serialize('json', [o])
+    return JsonResponse(o, safe=False)
+
+
 def toggleNightmode(request):
     user = request.user if request.user.is_authenticated else None
     user.profile.nightmode = False if user.profile.nightmode else True

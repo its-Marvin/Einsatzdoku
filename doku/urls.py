@@ -8,6 +8,7 @@ urlpatterns = [
     path('Einsatz/all', views.get_aktive_einsaetze, name='alleEinsaetze'),
     path('Einsatz/add', views.neuer_Einsatz, name='neuerEinsatz'),
     path('Ort/<int:ort_id>', views.get_ort, name='getOrt'),
+    path('Zug/<int:zug_id>', views.get_zug, name='getZug'),
     path('Stichwort/<str:stichwort_id>', views.get_stichwort, name='getStichwort'),
     path('Nachtmodus', views.toggleNightmode, name='toggleNightmode'),
     path('<int:einsatz_id>', views.einsatz, name='einsatz'),
