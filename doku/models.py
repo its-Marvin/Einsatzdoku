@@ -72,6 +72,19 @@ class Zug(models.Model):
         return str(self.Name)
 
 
+class ZugExtra(models.Model):
+    Zugfuehrer = models.IntegerField(validators=[MinValueValidator(0)])
+    Gruppenfuehrer = models.IntegerField(validators=[MinValueValidator(0)])
+    Mannschaft = models.IntegerField(validators=[MinValueValidator(0)])
+    Atemschutz = models.IntegerField(validators=[MinValueValidator(0)])
+    Name = models.CharField(max_length=50, null=False, blank=False)
+    Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT, editable=False)
+
+    def __str__(self):
+        return str(self.Name) + " - Stärke: " + str(self.Zugfuehrer) + "/" + str(
+            self.Gruppenfuehrer) + "/" + str(self.Mannschaft) + " (" + str(self.Atemschutz) + " AGT)"
+
+
 class Ort(models.Model):
     PLZ = models.IntegerField(primary_key=True, validators=[MinValueValidator(0), MaxValueValidator(99999)])
     Kurzname = models.CharField(max_length=3, null=False, blank=False)
