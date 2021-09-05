@@ -1,8 +1,7 @@
 <!-- Abschnitt Meldungen -->
 <div class="Modul mittleresModul">
-	<h2>{% if einsatz.Training %}Trainings-{% endif %}Meldungen</h2>
-	<div class="minimize-button active">-</div>
-	<div class="minimize-this" style="display:block;">
+	<center><h4>{% if einsatz.Training %}Trainings-{% endif %}Meldungen / Einsatzverlauf</h4></center>
+	<div style="display:block;">
 		<div class="spacer"></div>
 		{% if autor and not einsatz.Ende %}
 			<div class="Formular">

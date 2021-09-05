@@ -20,6 +20,7 @@ urlpatterns = [
     path('<int:einsatz_id>/Meldung/neu', views.neue_Meldung, name='neueMeldung'),
     path('<int:einsatz_id>/Personal', views.summe_Personal, name='summePersonal'),
     path('<int:einsatz_id>/Fahrzeug/neu', views.neues_Fahrzeug, name='neuesFahrzeug'),
+    path('<int:einsatz_id>/Zug', views.add_extra_zug, name='neuerZug'),
     path('<int:einsatz_id>/Person/neu', views.neue_Person, name='neuePerson'),
     path('<int:einsatz_id>/Einsatzende', views.einsatzende, name='einsatzende'),
     path('<int:einsatz_id>/OEL', views.oel, name='oel'),

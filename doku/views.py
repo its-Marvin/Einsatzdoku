@@ -11,7 +11,7 @@ import os
 from django.utils.html import escape
 
 from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, \
-    Einsatzstellen_Notizen
+    Einsatzstellen_Notizen, ZugExtra
 from .models import Einsatzstellen, Einheiten
 
 
@@ -71,7 +71,8 @@ def einsatz(request, einsatz_id):
         einsatz = None
     aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
     alle_Meldungen = Meldung.objects.order_by('-Erstellt').filter(Einsatz=einsatz_id)
-    eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz_id).order_by('Name__Zug', 'Name__Ort__Langname', 'Name__Funkname')
+    eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz_id).order_by('Name__Zug', 'Name__Ort__Langname',
+                                                                                 'Name__Funkname')
     alle_Personen = Person.objects.filter(Einsatz=einsatz_id)
     alle_Fahrzeuge = Fahrzeuge.objects.filter()
     alle_Zuege = Zug.objects.filter()
@@ -229,6 +230,7 @@ def lagekarte(request, einsatz_id):
         }
         return render(request, 'doku/lagekarte.html', context)
 
+
 def get_icons():
     icons = []
     for icon in os.listdir("doku/static/doku/icons"):
@@ -342,7 +344,7 @@ def neue_Meldung(request, einsatz_id):
             wichtig = False
         else:
             wichtig = True
-        #Neue Meldung anlegen
+        # Neue Meldung anlegen
         m = Meldung(Inhalt=inhalt, Wichtig=wichtig, Einsatz=einsatz, Autor=request.user, Zug=zug)
         m.save()
         return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
@@ -352,7 +354,7 @@ def neue_Person(request, einsatz_id):
     if not request.user.is_authenticated:
         raise PermissionDenied
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
-    #if einsatz.Ende:
+    # if einsatz.Ende:
     #    raise PermissionDenied
     try:
         nachname = request.POST['Nachname']
@@ -391,12 +393,13 @@ def neues_Fahrzeug(request, einsatz_id):
     else:
         try:
             f = Fahrzeug.objects.filter(Einsatz=einsatz).filter(Name=name)[0]
-            f.Zugfuehrer=zugfuehrer
-            f.Gruppenfuehrer=gruppenfuehrer
-            f.Mannschaft=mannschaft
-            f.Atemschutz=atemschutz
+            f.Zugfuehrer = zugfuehrer
+            f.Gruppenfuehrer = gruppenfuehrer
+            f.Mannschaft = mannschaft
+            f.Atemschutz = atemschutz
         except:
-            f = Fahrzeug(Name=name, Zugfuehrer=zugfuehrer, Gruppenfuehrer=gruppenfuehrer, Mannschaft=mannschaft, Atemschutz=atemschutz, Einsatz=einsatz, Autor=request.user)
+            f = Fahrzeug(Name=name, Zugfuehrer=zugfuehrer, Gruppenfuehrer=gruppenfuehrer, Mannschaft=mannschaft,
+                         Atemschutz=atemschutz, Einsatz=einsatz, Autor=request.user)
         f.save()
         return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
 
@@ -419,12 +422,14 @@ def einsatzende(request, einsatz_id):
 def meldung(request, einsatz_id):
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
     lastID = request.GET.get('lastID', 0)
-    neueMeldungen = serializers.serialize("json", Meldung.objects.select_related().filter(Einsatz=einsatz).filter(pk__gt=lastID))
+    neueMeldungen = serializers.serialize("json", Meldung.objects.select_related().filter(Einsatz=einsatz).filter(
+        pk__gt=lastID))
     return JsonResponse(neueMeldungen, safe=False)
 
 
 def summe_Personal(request, einsatz_id):
     zuege = Zug.objects.all()
+    extra_zuege = ZugExtra.objects.filter(Einsatz=einsatz_id)
     summe = {}
     zf = 0
     gf = 0
@@ -432,10 +437,10 @@ def summe_Personal(request, einsatz_id):
     agt = 0
     for zug in zuege:
         summe[zug.Name] = {
-        'zugfuehrer': 0,
-        'gruppenfuehrer': 0,
-        'mannschaft': 0,
-        'atemschutz': 0
+            'zugfuehrer': 0,
+            'gruppenfuehrer': 0,
+            'mannschaft': 0,
+            'atemschutz': 0
         }
         try:
             for fahrzeug in Fahrzeug.objects.filter(Einsatz=einsatz_id).filter(Name__Zug__Name__contains=zug.Name):
@@ -449,6 +454,17 @@ def summe_Personal(request, einsatz_id):
                 agt += fahrzeug.Atemschutz
         except FileExistsError:
             summe.pop(zug.Name)
+    for zug in extra_zuege:
+        summe[zug.Name] = {
+            'zugfuehrer': zug.Zugfuehrer,
+            'gruppenfuehrer': zug.Gruppenfuehrer,
+            'mannschaft': zug.Mannschaft,
+            'atemschutz': zug.Atemschutz
+        }
+        zf += zug.Zugfuehrer
+        gf += zug.Gruppenfuehrer
+        ms += zug.Mannschaft
+        agt += zug.Atemschutz
     summe['Gesamt'] = {
         'zugfuehrer': zf,
         'gruppenfuehrer': gf,
@@ -456,6 +472,37 @@ def summe_Personal(request, einsatz_id):
         'atemschutz': agt
     }
     return JsonResponse(json.dumps(summe), safe=False)
+
+
+def add_extra_zug(request, einsatz_id):
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+    einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
+    if einsatz.Ende:
+        raise PermissionDenied
+    try:
+        name = request.POST['Name']
+        besatzung = request.POST['Besatzung']
+        zugfuehrer = int(besatzung.split("/")[0])
+        gruppenfuehrer = int(besatzung.split("/")[1])
+        mannschaft = int(besatzung.split("/")[2])
+        atemschutz = request.POST.get('Atemschutz', 0)
+        if atemschutz == "":
+            atemschutz = 0
+    except:
+        return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
+    else:
+        try:
+            z = ZugExtra.objects.filter(Einsatz=einsatz).filter(Name=name)[0]
+            z.Zugfuehrer = zugfuehrer
+            z.Gruppenfuehrer = gruppenfuehrer
+            z.Mannschaft = mannschaft
+            z.Atemschutz = atemschutz
+        except:
+            z = ZugExtra(Name=name, Zugfuehrer=zugfuehrer, Gruppenfuehrer=gruppenfuehrer, Mannschaft=mannschaft,
+                         Atemschutz=atemschutz, Einsatz=einsatz)
+        z.save()
+        return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
 
 
 def get_ort(request, ort_id):

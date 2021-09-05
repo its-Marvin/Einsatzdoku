@@ -1,19 +1,27 @@
 <div class="Modul rechtesModul">
 
-        <h2 class="do-not-print">Sonstiges</h2>
-        <div class="minimize-button active">-</div>
-        <div class="minimize-this do-not-print">
-            <div class="spacer"></div>
-            <div class="Toolbox">
-                {% if einstellungen.Lagekarten %}
-                <a target="_blank" href="{% url 'doku:lagekarte' einsatz.Nummer %}"><button>Lagekarten</button></a>
-                {% endif %}
-                <a href="{% url 'doku:oel' einsatz.Nummer %}"><button>ÖEL</button></a>
-                <a target="_blank" href="{{ einstellungen.Hydranten }}"><button>Hydranten</button></a>
-                <a target="_blank" href="https://www.dgg.bam.de/quickinfo/de/"><button>Gefahrgut</button></a>
-                <!--<a target="_blank" href=""><button>FeuerOn Infos</button></a>-->
-            </div>
+    <h2 class="do-not-print">Sonstiges</h2>
+    <div class="minimize-button active">-</div>
+    <div class="minimize-this do-not-print">
+        <div class="spacer"></div>
+        <div class="Toolbox">
+            {% if einstellungen.Lagekarten %}
+                <a target="_blank" href="{% url 'doku:lagekarte' einsatz.Nummer %}">
+                    <button>Lagekarten</button>
+                </a>
+            {% endif %}
+            <a href="{% url 'doku:oel' einsatz.Nummer %}">
+                <button>ÖEL</button>
+            </a>
+            <a target="_blank" href="{{ einstellungen.Hydranten }}">
+                <button>Hydranten</button>
+            </a>
+            <a target="_blank" href="https://www.dgg.bam.de/quickinfo/de/">
+                <button>Gefahrgut</button>
+            </a>
+            <!--<a target="_blank" href=""><button>FeuerOn Infos</button></a>-->
         </div>
+    </div>
 
     <!-- Stärkemeldungen -->
     {% if einstellungen.Fahrzeuge %}
@@ -42,23 +50,35 @@
             {% endif %}
             {% if eingesetzte_Fahrzeuge %}
                 <ul id="Fahrzeugliste">
-                {% for Fahrzeug in eingesetzte_Fahrzeuge %}
-                    <li class="Fahrzeug" style="background-color: {{ Fahrzeug.Name.Zug.Farbe }};"
-                        data-toggle="tooltip" title="{{Fahrzeug.Name.Typ}} - {{ Fahrzeug.Name.Ort }}"
-                        data-placement="bottom">
-                        {{ Fahrzeug }}
-                    </li>
-                {% endfor %}
+                    {% for Fahrzeug in eingesetzte_Fahrzeuge %}
+                        <li class="Fahrzeug" style="background-color: {{ Fahrzeug.Name.Zug.Farbe }};"
+                            data-toggle="tooltip" title="{{ Fahrzeug.Name.Typ }} - {{ Fahrzeug.Name.Ort }}"
+                            data-placement="bottom">
+                            {{ Fahrzeug }}
+                        </li>
+                    {% endfor %}
                 </ul>
             {% endif %}
+            <form name="neuer_Zug"
+                  action="{% url 'doku:neuerZug' einsatz.Nummer %}"
+                  method="post"
+                  autocomplete="off">
+                {% csrf_token %}
+                <input hidden class="do-not-show" autocomplete="false">
+                <input name="Name" placeholder="Zug / externes Fahrzeug" maxlength="50" required/>
+                <input name="Besatzung" placeholder="0/0/0" required/>
+                <input name="Atemschutz" placeholder="AGT" type="number" size="5" min="0">
+                <input type="submit" value="Hinzufügen / Ändern">
+            </form>
             <script>
                 $.get({
                     method: "GET",
                     url: "{% url 'doku:summePersonal' einsatz.Nummer %}",
-                    success: function(data) {
+                    success: function (data) {
                         var jsonResponse = JSON.parse(data);
                         for (var zug in jsonResponse) {
                             var ausgabe = "<li class='SummePersonal Wichtig'>";
+                            var agt = "<li class='SummePersonal Wichtig'>";
                             if (zug != 'Gesamt') {
                                 ausgabe += zug;
                                 ausgabe += ": <div>";
@@ -74,8 +94,12 @@
                                 let sum = jsonResponse[zug].zugfuehrer;
                                 sum += jsonResponse[zug].gruppenfuehrer;
                                 sum += jsonResponse[zug].mannschaft;
-                                ausgabe += "<center class='do-not-print'>Insgesamt " + sum.toString()  + " Einsatzkräfte</center>"
-                                ausgabe += "<span class='do-not-show'>Insgesamt " + sum.toString()  + " Einsatzkräfte</span>"
+                                let sum_agt = jsonResponse[zug].atemschutz;
+                                ausgabe += "<center class='do-not-print'>Insgesamt " + sum.toString() + " Einsatzkräfte</center>"
+                                ausgabe += "<span class='do-not-show'>Insgesamt " + sum.toString() + " Einsatzkräfte</span>"
+                                agt += "<center class='do-not-print'>davon " + sum_agt.toString() + " AGT</center>"
+                                agt += "</li>";
+                                $("#Fahrzeugliste").prepend(agt);
                             }
                             ausgabe += "</li>";
                             $("#Fahrzeugliste").prepend(ausgabe);
