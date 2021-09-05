@@ -61,7 +61,7 @@
                            value="{{ einsatz.Adresse }}"{% endif %}
                            autocomplete="false">
                 </div>
-                    &nbsp;&nbsp;&nbsp;{{ einsatz.Ort }}
+                    &nbsp;&nbsp;&nbsp;{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort }}{% endif %}
                 <script>
                     $("#adresse").focusout(function(){
                         var adresse = $("input[name='adresse']").val();
