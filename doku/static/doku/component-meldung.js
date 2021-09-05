@@ -41,7 +41,7 @@ class Meldungsliste extends React.Component {
         this.fetchMeldungen();
         this.interval = setInterval(() => {
             this.fetchMeldungen();
-        }, 5000);
+        }, 500);
     }
 
     componentWillUnmount() {
