@@ -15,18 +15,25 @@ class Einsatzliste extends React.Component {
     }
 
     componentDidMount() {
-        this.fetchEinsaetze();
-        this.interval = setInterval(() => {
-            this.fetchEinsaetze()
-        }, 500);
+        if (window.location.href.indexOf('training') > -1) {
+            this.fetchEinsaetze('/doku/training/all')
+            this.interval = setInterval(() => {
+                this.fetchEinsaetze('/doku/training/all')
+            }, 500);
+        } else {
+            this.fetchEinsaetze('/doku/Einsatz/all')
+            this.interval = setInterval(() => {
+                this.fetchEinsaetze('/doku/Einsatz/all')
+            }, 500);
+        }
     }
 
     componentWillUnmount() {
         clearInterval(this.interval);
     }
 
-    fetchEinsaetze() {
-        fetch("/doku/Einsatz/all")
+    fetchEinsaetze(url) {
+        fetch(url)
             .then(res => res.json())
             .then(
                 (json) => {

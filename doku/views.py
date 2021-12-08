@@ -45,6 +45,12 @@ def get_aktive_einsaetze(request):
     return JsonResponse(data, safe=False)
 
 
+def get_aktive_trainings_einsaetze(request):
+    alle_einsaetze = Einsatz.objects.filter(Training=True).order_by('-Nummer')
+    data = serializers.serialize('json', alle_einsaetze)
+    return JsonResponse(data, safe=False)
+
+
 def index_training(request):
     Ort.objects.get_or_create(PLZ=0, Kurzname="ZZZ", Langname="Freitext")
     einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
@@ -52,6 +58,11 @@ def index_training(request):
     alle_Stichworte = Stichwort.objects.order_by('Kurzname')
     alle_Orte = Ort.objects.order_by('Kurzname')
     autor = request.user if request.user.is_authenticated else None
+    jahre = []
+    for einsatz in alle_Einsaetze:
+        if einsatz.Ende:
+            if einsatz.getYear() not in jahre:
+                jahre.append(einsatz.getYear())
     context = {
         'training': True,
         'einstellungen': einstellungen,
@@ -59,6 +70,7 @@ def index_training(request):
         'alle_Einsaetze': alle_Einsaetze,
         'alle_Stichworte': alle_Stichworte,
         'alle_Orte': alle_Orte,
+        'jahre': sorted(jahre, reverse=True),
     }
     return render(request, 'doku/index.html', context)
 
