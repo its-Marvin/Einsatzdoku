@@ -112,6 +112,3 @@ venv.bak/
 # Django Migration files
 migrations/
 doku/migrations/
-
-# Dont track static files (can be collected with manage.py collectstatic later)
-static

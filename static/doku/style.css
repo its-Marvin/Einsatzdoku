@@ -1,0 +1,605 @@
+:root {
+  --main-bg-color: #222;
+  --sec-bg-color: #444;
+  --element-color: #555;
+  --text-element-color: #bbb;
+  --highlight-color: #700;
+  --highlight-text-color: #fff;
+  --text-color: #fff;
+  --text-inverse-color: #000;
+}
+body, .container {
+    width: 100%;
+    background-color: var(--main-bg-color);
+	color: var(--text-color);
+    margin: 0px;
+	padding: 0px;
+}
+
+html {
+	margin: 0px;
+	padding: 0px;
+	background-color: var(--main-bg-color);
+	color: var(--text-color);
+	font-family: "Lucida Sans", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+    width: 1px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--highlight-text-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--highlight-color);
+}
+
+div.Titel {
+	display: none;
+}
+
+div.header {
+	float: left;
+	width: 50%;
+	font-size: 80%;
+	padding-left: 1%;
+	padding-right: 1%;
+}
+
+div.content { width: 100%; }
+
+.no-smartphone {display: none;}
+
+@media only screen and (min-width: 1000px) {
+	div.topmenu {
+		height: 10%;
+		background-color: var(--sec-bg-color);
+		border: 3px solid var(--main-bg-color);
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+	div.header {
+		font-size: 100%;
+	}
+
+	div.Hauptmenu {
+		width: 20%;
+	}
+
+	div.Titel {
+		width: 60%;
+		text-align: center;
+		display: initial;
+	}
+
+	div.Benutzer {
+		width: 20%;
+	}
+
+	.no-smartphone {
+	    display: block;
+	}
+
+	.linkesModul	{
+		width: 20% !important;
+	}
+
+	.mittleresModul {
+		width: 60% !important;
+	}
+
+	.rechtesModul {
+		width: 20% !important;
+	}
+
+	.Modul.rechtesModul, .Modul.mittleresModul, .Modul.linkesModul {
+	    overflow: auto;
+	    height: 90%;
+	}
+}
+
+div.Modul {
+	margin-bottom: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+	padding: 1%;
+	padding-top: 0;
+	background-color: var(--sec-bg-color);
+	border: 3px solid var(--main-bg-color);
+	float: left;
+	width: 100%;
+}
+
+@media only screen and (min-width: 1400px) {
+	div.Modul {
+		font-size: 120%;
+	}
+	div.Formular {
+		width: 80%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
+div.minimize-button {
+	text-align: right;
+	float: right;
+	font-size: 150%;
+	width:5%;
+	cursor: pointer;
+}
+
+h2 {
+	float: left;
+	width: 95%;
+}
+
+.Login h2 {
+    width: initial;
+    float: initial;
+}
+
+a {
+	color: var(--text-color);
+	text-decoration: None;
+}
+a:hover {
+	color: var(--text-color);
+}
+a:active {
+	color: var(--text-color);
+}
+a:visited {
+	color: var(--text-color);
+}
+
+.Button {
+	margin-left: 3%;
+	margin-top: 3%;
+	text-align: center;
+	padding: 10px;
+	width: 120px;
+	background-color: var(--element-color);
+	border: 1px solid var(--main-bg-color);
+}
+.Button:hover {
+	background-color:var(--sec-bg-color);
+}
+
+ul {
+	text-align: left;
+	padding-left: 0;
+}
+
+li {
+	padding: .5em;
+	margin-bottom: .125em;
+	display: block;
+	list-style: none;
+	background-color: var(--text-element-color);
+	color: var(--text-inverse-color);
+	width: 98%;
+}
+li li {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    padding-right: 0;
+}
+.tooltip-inner {
+    font-size: 150%;
+    background-color: var(--highlight-color);
+    color: var(--highlight-text-color);
+    border: 1px solid black;
+}
+li.Person {
+	cursor: pointer;
+}
+li b {float: right;}
+
+.Wichtig {
+	background-color: var(--highlight-color) !important;
+	color: var(--highlight-text-color) !important;
+}
+.Training {
+    background-color: #009900 !important;
+}
+
+.SummePersonal div {
+    float: right;
+}
+
+.dropbtn {
+  background-color: var(--element-color);
+  color: var(--text-color);
+  padding: 16px;
+  border: 1px solid var(--text-inverse-color);
+  cursor: pointer;
+  width: 98%;
+  margin-top: 10px;
+}
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: var(--text-element-color);
+  width: 98%;
+  z-index: 1;
+}
+.dropdown-content a, .dropdown-content  p {
+  margin: 0;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  border: 1px solid var(--text-inverse-color);
+  border-top: none;
+  display: block;
+  cursor: pointer;
+}
+.dropdown-content a:hover, .dropdown-content p:hover {
+	background-color: var(--highlight-color);
+	color: var(--highlight-text-color);
+}
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.dropdown:hover .dropbtn {
+  background-color: var(--sec-bg-color);
+}
+
+.do-not-show {
+	display: none;
+}
+
+/* ###################### Custom forms #########################*/
+form {
+	width: 100%;
+	padding-bottom: 25px;
+}
+input, select, textarea {
+	border: none;
+	border-bottom: 1px solid var(--text-inverse-color);
+	display: block;
+	padding: 6px 15px;
+	width: 98%;
+	height: 30px;
+	margin-bottom: 5px;
+	color: var(--text-color);
+	background-color: var(--sec-bg-color);
+}
+input[type=submit] {
+	border: 1px solid var(--text-inverse-color);
+	background-color: var(--element-color);
+	width: 98%;
+	display: inline-block;
+	margin-bottom: 0;
+	float: left;
+}
+input:focus, select:focus, textarea:focus {
+	border: 1px solid var(--highlight-color);
+	outline: none;
+}
+input[type=submit].check {
+	width: calc(98% - 28px);
+}
+input[type=submit]:hover {
+    background-color: var(--sec-bg-color);
+    cursor: pointer;
+}
+input {
+    line-height: 1;
+}
+
+/* ###################### Custom checkbox #########################*/
+.checkboxdiv { 
+	position: initial; 
+	display: inline-block;
+	width: 29px;
+	height: 29px;
+	float: left;
+}
+/* Customize the label (the container) */
+.container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 29px;
+  width: 29px;
+  background-color: var(--element-color);
+  border: 1px solid var(--text-inverse-color);
+  text-align: center;
+}
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: var(--sec-bg-color);
+}
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: var(--highlight-color);
+  color: var(--highlight-text-color);
+}
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  font-size: 200%;
+}
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 9px;
+  height: 15px;
+  border: solid var(--text-color);
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.logo-links {
+	float: left;
+	margin-top: 5px;
+	height: 85%;
+}
+
+.logo-rechts {
+	float: right;
+	margin-top: 5px;
+	height: 85%;
+	margin-right: 2%;
+}
+
+#eNr input {
+    font-size: 100%;
+    padding-bottom: 2px;
+}
+
+#MeldungZug {
+    width: calc(15% - 3px);
+    margin-right: 5px;
+    float: left;
+}
+#MeldungInhalt {
+    width: calc(83% - 2px);
+    float: left;
+}
+.spacer {
+    width: 100%;
+    height: 1px;
+    clear: both;
+}
+
+/* Lagekarte */
+#Lagekarte {
+	background-color: #fff;
+}
+
+input[type=color] {
+    border: 1px solid var(--main-bg-color);
+    width: 65%;
+    background: var(--element-color);
+    float: right;
+    margin-right: 2%;
+}
+label {
+    padding-left: 1%;
+    padding-top: 1%;
+    width: 31%;
+    font-weight: normal;
+}
+
+.Toolbox button {
+    margin-bottom: -1px;
+    height: 30px;
+    width: 98%;
+    background: var(--element-color);
+    color     : var(--text-color);
+    border    : 1px solid var(--main-bg-color);
+    cursor: pointer;
+}
+button.icon {
+    height: 40px !important;
+}
+button img {
+    float: left;
+    margin-left: 10%;
+    margin-top: 1%;
+}
+button p {
+    margin-top: 2%;
+    padding-left: 30%;
+    text-align: left;
+}
+
+.Toolbox button:hover {
+    background: var(--sec-bg-color);
+}
+
+.Toolbox button.selected, button:focus {
+    background: var(--highlight-color);
+    color     : var(--highlight-text-color);
+    border    : 1px solid var(--text-inverse-color);
+    outline: none;
+}
+
+#importBackground {
+    display: none;
+}
+
+.ArchivKarte {
+    width: 98%;
+    margin-bottom: -2px;
+    border-bottom: 2px solid var(--main-bg-color);
+    border-top: 3px solid var(--highlight-color);
+    border-left: 3px solid var(--highlight-color);
+    border-right: 3px solid var(--highlight-color);
+}
+
+.ArchivKarte img {
+    width: 100%;
+}
+.ArchivText {
+    text-align: center;
+    width: 98%;
+    margin-bottom: 5px;
+    border-top: 2px solid var(--main-bg-color);
+    border-bottom: 3px solid var(--highlight-color);
+    border-left: 3px solid var(--highlight-color);
+    border-right: 3px solid var(--highlight-color);
+    background: var(--highlight-color);
+    padding: 3px;
+    font-size: 80%;
+}
+
+#stiftdickeauswahl {
+    margin: 0px;
+    -webkit-appearance: none;
+    width: 98%;
+    height: 30px;
+    background: var(--element-color);
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border: 1px solid var(--text-inverse-color);
+}
+
+#stiftdickeauswahl:hover {
+    background: var(--sec-bg-color);
+}
+
+#stiftdickeauswahl::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    background: var(--highlight-color);
+    cursor: pointer;
+}
+
+#stiftdickeauswahl::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: var(--highlight-color);
+    cursor: pointer;
+}
+
+.Einsatzstelle {
+    font-weight: normal;
+    cursor: pointer;
+}
+.Anmerkung {
+    font-weight: normal;
+    font-style: italic;
+    font-size: 95%;
+    margin: 0;
+}
+.EinsatzstelleMenu {
+    display: none;
+}
+.EinsatzstelleMenu li {
+    background-color: inherit;
+}
+
+.floating-button {
+    float: right;
+    margin: 0;
+    padding: 0;
+    margin-right: 2%;
+}
+.floating-button * {
+    width: 100% !important;
+    height: inherit !important;
+    margin: inherit;
+}
+
+.message-time {
+    float: left;
+    margin: 0;
+    width: 85px;
+    padding: 0;
+    padding-left: 5px;
+    border: 1px solid var(--highlight-color);
+    border-radius: 10px;
+}
+
+.message-text {
+    margin: 0;
+    margin-left: 85px;
+    padding: 5px;
+    padding-top: 0;
+    height: auto;
+}
+
+.eingerueckt20 {
+    margin-left: 20px;
+    padding-bottom: 5px;
+}
+.eingerueckt40 {
+    margin-left: 40px;
+    padding-bottom: 5px;
+}
+.eingerueckt60 {
+    margin-left: 60px;
+    padding-bottom: 5px;
+}
+.eingerueckt80 {
+    margin-left: 80px;
+    padding-bottom: 5px;
+}
+.i-edit {
+    content: url("data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjIuODggMTIxLjUxIj4KICAgIDx0aXRsZT5lZGl0PC90aXRsZT4KICAgIDxwYXRoIGQ9Ik0yOC42NiwxLjY0SDU4Ljg4TDQ0LjQ2LDE2LjcxSDI4LjY2YTEzLjUyLDEzLjUyLDAsMCwwLTkuNTksNGwwLDBhMTMuNTIsMTMuNTIsMCwwLDAtNCw5LjU5djc2LjE0SDkxLjIxYTEzLjUsMTMuNSwwLDAsMCw5LjU5LTRsMCwwYTEzLjUsMTMuNSwwLDAsMCw0LTkuNTlWNzcuM2wxNS4wNy0xNS43NFY5Mi44NWEyOC42LDI4LjYsMCwwLDEtOC40MSwyMC4yMmwwLC4wNWEyOC41OCwyOC41OCwwLDAsMS0yMC4yLDguMzlIMTEuNWExMS40NywxMS40NywwLDAsMS04LjEtMy4zN2wwLDBBMTEuNTIsMTEuNTIsMCwwLDEsMCwxMTBWMzAuM0EyOC41OCwyOC41OCwwLDAsMSw4LjQxLDEwLjA5TDguNDYsMTBhMjguNTgsMjguNTgsMCwwLDEsMjAuMi04LjRaTTczLDc2LjQ3bC0yOS40Miw2LDQuMjUtMzEuMzFMNzMsNzYuNDdaTTU3LjEzLDQxLjY4LDk2LjMuOTFBMi43NCwyLjc0LDAsMCwxLDk5LjY5LjM4bDIyLjQ4LDIxLjc2YTIuMzksMi4zOSwwLDAsMS0uMTksMy41N0w4Mi4yOCw2Nyw1Ny4xMyw0MS42OFoiLz4KPC9zdmc+");
+    float: right;
+    width: 18px;
+    height: 18px;
+    margin-top: 5px;
+    margin-right: 12px;
+}
+
+.i-map {
+    content: url("data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDUuOTMgMTIyLjg4Ij48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGwtcnVsZTpldmVub2RkO308L3N0eWxlPjwvZGVmcz48dGl0bGU+bWFwPC90aXRsZT48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik01Ni45Miw3My4xNGExLjYyLDEuNjIsMCwwLDEtMS44Ni4wNkE2NS4yNSw2NS4yNSwwLDAsMSwzOC45Miw1OC44LDUxLjI5LDUxLjI5LDAsMCwxLDI4LjA2LDM1LjM3QzI2Ljc3LDI3LjM4LDI4LDE5LjcsMzIsMTMuNDVhMjcsMjcsMCwwLDEsNi02LjY2QTI5LjIzLDI5LjIzLDAsMCwxLDU2LjM2LDAsMjYsMjYsMCwwLDEsNzMuODIsNy4xMmEyNiwyNiwwLDAsMSw0LjY2LDUuNjhjNC4yNyw3LDUuMTksMTYsMy4zMSwyNS4xMkE1NS4yOSw1NS4yOSwwLDAsMSw1Ni45Miw3My4xNFptLTE5LC43NFYxMDEuN2wzMC4xNSwxM1Y3OC44N2E2NS4xNyw2NS4xNywwLDAsMCw2LjQ1LTUuNjN2NDEuMThsMjUtMTIuNTl2LTU2bC05LjYxLDMuN2E2MS42MSw2MS42MSwwLDAsMCwyLjM4LTcuODFsOS4zLTMuNTlBMy4yMiwzLjIyLDAsMCwxLDEwNS43LDQwYTMuMTgsMy4xOCwwLDAsMSwuMjIsMS4xNnY2Mi43YTMuMjMsMy4yMywwLDAsMS0yLDNMNzIuNzIsMTIyLjUzYTMuMjMsMy4yMywwLDAsMS0yLjkyLDBsLTM1LTE1LjE3TDQuNjgsMTIyLjUzYTMuMjIsMy4yMiwwLDAsMS00LjMzLTEuNDJBMy4yOCwzLjI4LDAsMCwxLDAsMTE5LjY2VjUzLjI0YTMuMjMsMy4yMywwLDAsMSwyLjMyLTMuMUwxOC43LDQzLjgyYTU4LjYzLDU4LjYzLDAsMCwwLDIuMTYsNi4wN0w2LjQ2LDU1LjQ0djU5bDI1LTEyLjU5VjY3LjA5YTc2LjI4LDc2LjI4LDAsMCwwLDYuNDYsNi43OVpNNTUuMTUsMTQuMjFBMTMuNzIsMTMuNzIsMCwxLDEsNDEuNDMsMjcuOTMsMTMuNzIsMTMuNzIsMCwwLDEsNTUuMTUsMTQuMjFaIi8+PC9zdmc+");
+    float: right;
+    width: 25px;
+    height: 25px;
+    margin-top: -8px;
+    margin-right: 12px;
+}
