@@ -112,3 +112,9 @@ venv.bak/
 # Django Migration files
 migrations/
 doku/migrations/
+
+# Environment variable file
+einsatzdoku/env.py
+
+# Dont track static files (can be collected with manage.py collectstatic later)
+static

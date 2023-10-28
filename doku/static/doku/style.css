@@ -8,9 +8,12 @@
   --text-color: #fff;
   --text-inverse-color: #000;
 }
-body {
+body, .container {
+    width: 100%;
     background-color: var(--main-bg-color);
 	color: var(--text-color);
+    margin: 0px;
+	padding: 0px;
 }
 
 html {

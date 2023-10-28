@@ -1,0 +1,58 @@
+version: '3.1'
+
+services:
+  reverse-proxy:
+    image: traefik:v2.10
+    #command: --api.insecure=true --providers.docker
+    command: --providers.docker
+    ports:
+      - "80:80"
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      #- "81:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  doku:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    image: einsatzdoku:latest
+    labels:
+      - "traefik.http.routers.einsatzdoku.rule=Host(`doku.local`)"
+    environment:
+      DB_TYPE: POSTGRES
+      DB_HOST: db
+      DB_NAME: doku
+      DB_USER: doku
+      DB_PASSWORD: 'CHANGEME'
+      DJANGO_SECRET: 'CHANGEME'
+      DJANGO_DEBUG: 'False'
+    restart: unless-stopped
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+     - db
+  static:
+    build:
+      dockerfile: Dockerfile
+      context: ./static
+    image: einsatzdoku-static:latest
+    labels:
+      - "traefik.http.routers.einsatzdoku-static.rule=PathPrefix(`/static`)"
+      - "traefik.http.routers.einsatzdoku-static.middlewares=einsatzdoku-static"
+      - "traefik.http.middlewares.einsatzdoku-static.stripprefix.prefixes=/static"
+      - "traefik.http.middlewares.einsatzdoku-static.stripprefix.forceSlash=true"
+    restart: unless-stopped
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: doku
+      POSTGRES_PASSWORD: CHANGEME
+      POSTGRES_DB: doku
+    volumes:
+      - elwdb:/var/lib/postgresql/data
+
+volumes:
+  elwdb:

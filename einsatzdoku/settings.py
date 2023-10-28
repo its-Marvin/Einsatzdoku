@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import einsatzdoku.env as env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,21 +21,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0g)-ozhtpm%^as@e)yhp1s4noe(%hgq$a8(bon$y07aq!9#iuf'
+SECRET_KEY = env.DJANGO_SECRET
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.DJANGO_DEBUG
 
 ALLOWED_HOSTS = ['*']
 
 # SITE AFTER LOGIN
-LOGIN_REDIRECT_URL = '/doku'
-LOGOUT_REDIRECT_URL = '/doku/Benutzer/login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/Benutzer/login'
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'doku.apps.DokuConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -72,18 +74,30 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'einsatzdoku.wsgi.application'
+# WSGI_APPLICATION = 'einsatzdoku.wsgi.application'
+ASGI_APPLICATION = 'einsatzdoku.asgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
+if env.DB_TYPE == "POSTGRES":
+    DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env.DB_NAME,
+        'USER': env.DB_USER,
+        'PASSWORD': env.DB_PASSWORD,
+        'HOST': env.DB_HOST,
+        'PORT': env.DB_PORT,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 
 # Password validation
@@ -108,7 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'de'
+LANGUAGE_CODE = 'de-de'
 
 TIME_ZONE = 'Europe/Berlin'
 
@@ -125,9 +139,11 @@ USE_TZ = True
 MEDIA_ROOT = 'media'
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = ''
+STATIC_ROOT = 'static'
 STATIC_URL = '/static/'
 
 # Logout on browser close
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 28800
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
