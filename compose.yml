@@ -7,7 +7,7 @@ services:
     command: --providers.docker
     ports:
       - "80:80"
-      - "443:443"
+      # - "443:443"
       # The Web UI (enabled by --api.insecure=true)
       #- "81:8080"
     volumes:
