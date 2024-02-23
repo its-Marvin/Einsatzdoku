@@ -6,12 +6,8 @@ name: create_containers
 # - A pull request is created or updated
 on:
   push:
-    branches:
-      - main
     tags:
       - v*
-  pull_request:
-  # This creates an environment variable called `IMAGE_NAME ` with the value `ghtoken_product_demo`.
 env:
   IMAGE_NAME: einsatzdoku
   IMAGE_NAME_STATIC: einsatzdoku-static
