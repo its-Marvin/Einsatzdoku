@@ -10,15 +10,10 @@
 
   	<script src="{%  static 'doku/bootstrap.min.js' %}"></script>
 	<script src="{%  static 'doku/popper.min.js' %}"></script>
-	<!--
-	<link rel="stylesheet" media="print" type="text/css" href="{% static 'doku/bootstrap.min.css' %}">
-	<script type="text/javascript" src="{% static 'doku/jquery-3.4.1.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'doku/bootstrap.min.js' %}"></script>
-	-->
 	<link rel="stylesheet" media="screen" type="text/css" href="{% static 'doku/style.css' %}">
 	<link rel="stylesheet" media="print" type="text/css" href="{% static 'doku/print.css' %}">
 </head>
-</body>
+<body>
 	{% csrf_token %}
 	<!-- Menu -->
 	<div class="topmenu{% if training %} Training{% endif %}">
@@ -54,7 +49,7 @@
 			<div class="dropdown">
 				<div class="dropbtn"><b>Angemeldet: </b>{{ autor.first_name }}</div>
 				<div class="dropdown-content">
-					<a href="/doku/Benutzer/logout?next={{ request.path }}">Abmelden</a>
+					<a href="/Benutzer/logout?next={{ request.path }}">Abmelden</a>
 					<p onclick="print()">Drucken</p>
 					<a href="{% url 'doku:toggleNightmode' %}" class="nightmode">Tagmodus</a>
 					<a href="{% if training %}{% url 'doku:index' %}{% else %}{% url 'doku:index_training' %}{% endif %}">
@@ -67,7 +62,7 @@
 			<div class="dropdown">
 				<div class="dropbtn">Nicht angemeldet</div>
 				<div class="dropdown-content">
-					<a href="/doku/Benutzer/login?next={{ request.path }}">Anmelden</a>
+					<a href="/Benutzer/login?next={{ request.path }}">Anmelden</a>
 				</div>
 			</div>
 		{% endif %}
