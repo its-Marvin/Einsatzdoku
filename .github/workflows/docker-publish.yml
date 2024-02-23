@@ -27,7 +27,7 @@ jobs:
         run: docker build . --file dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
 
       - name: Build static image
-        run: docker build . --file ./static/dockerfile --tag $IMAGE_NAME_STATIC --label "runnumber=${GITHUB_RUN_ID}"
+        run: docker build ./static/ --file ./static/dockerfile --tag $IMAGE_NAME_STATIC --label "runnumber=${GITHUB_RUN_ID}"
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
