@@ -13,10 +13,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   doku:
-    build:
-      dockerfile: Dockerfile
-      context: .
-    image: einsatzdoku:latest
+    image: ghcr.io/its-marvin/einsatzdoku
     labels:
       - "traefik.http.routers.einsatzdoku.rule=Host(`doku.local`)"
     environment:
@@ -34,10 +31,7 @@ services:
     depends_on:
      - db
   static:
-    build:
-      dockerfile: Dockerfile
-      context: ./static
-    image: einsatzdoku-static:latest
+    image: ghcr.io/its-marvin/einsatzdoku-static
     labels:
       - "traefik.http.routers.einsatzdoku-static.rule=PathPrefix(`/static`)"
       - "traefik.http.routers.einsatzdoku-static.middlewares=einsatzdoku-static"
