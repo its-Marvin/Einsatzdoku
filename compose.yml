@@ -13,9 +13,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   doku:
-    image: ghcr.io/its-marvin/einsatzdoku:1.0.1
+    image: ghcr.io/its-marvin/einsatzdoku:1.0.2
     labels:
-      - "traefik.http.routers.einsatzdoku.rule=Host(`*`)"
+      - "traefik.http.routers.einsatzdoku.priority=1"
+      - "traefik.http.routers.einsatzdoku.rule=HostRegexp(`{any:.+}`)"
     environment:
       DB_TYPE: POSTGRES
       DB_HOST: db
@@ -31,8 +32,9 @@ services:
     depends_on:
      - db
   static:
-    image: ghcr.io/its-marvin/einsatzdoku-static:1.0.1
+    image: ghcr.io/its-marvin/einsatzdoku-static:1.0.2
     labels:
+      - "traefik.http.routers.einsatzdoku-static.priority=2"
       - "traefik.http.routers.einsatzdoku-static.rule=PathPrefix(`/static`)"
       - "traefik.http.routers.einsatzdoku-static.middlewares=einsatzdoku-static"
       - "traefik.http.middlewares.einsatzdoku-static.stripprefix.prefixes=/static"
