@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseServerError
+from django.shortcuts import redirect
 import json
 import datetime
 import os
@@ -11,7 +12,7 @@ import os
 from django.utils.html import escape
 
 from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, \
-    Einsatzstellen_Notizen, ZugExtra
+    Einsatzstellen_Notizen, ZugExtra, User
 from .models import Einsatzstellen, Einheiten
 
 
@@ -27,6 +28,9 @@ def index(request):
         if einsatz.Ende:
             if einsatz.getYear() not in jahre:
                 jahre.append(einsatz.getYear())
+    first_run = False
+    if len(User.objects.all()) == 0:
+        first_run = True
     context = {
         'training': False,
         'einstellungen': einstellungen,
@@ -35,6 +39,7 @@ def index(request):
         'alle_Stichworte': alle_Stichworte,
         'alle_Orte': alle_Orte,
         'jahre': sorted(jahre, reverse=True),
+        'first_run': first_run,
     }
     return render(request, 'doku/index.html', context)
 
@@ -540,3 +545,17 @@ def toggleNightmode(request):
     user.profile.nightmode = False if user.profile.nightmode else True
     user.profile.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+def neuer_benutzer(request):
+    if request.method == 'POST':
+        if len(User.objects.all()) == 0:
+            username = request.POST["username"]
+            password = request.POST["password"]
+            user = User.objects.create_user(username=username.lower(), password=password, email="")
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
+            return redirect('doku:index')
+    raise PermissionDenied
+

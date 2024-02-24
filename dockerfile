@@ -15,7 +15,8 @@ python3-pip \
 WORKDIR /app
 COPY . .
 RUN pip3 install --no-cache-dir -r requirements.txt \
-&& chown -R doku:www-data /app
+&& chown -R doku:www-data /app && chmod +x /app/entrypoint.sh
 EXPOSE 8000
 USER doku
-CMD ["daphne", "einsatzdoku.asgi:application", "-b", "0.0.0.0"]
+ENTRYPOINT [ "/app/entrypoint.sh" ]
+#CMD ["daphne", "einsatzdoku.asgi:application", "-b", "0.0.0.0"]
