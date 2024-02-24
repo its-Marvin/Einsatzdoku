@@ -3,3 +3,4 @@ dockerfile
 compose.yml
 db.sqlite3
 static
+.dockerignore

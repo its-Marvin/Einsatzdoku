@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import TextInput
-from .models import Zug, Ort
+from .models import Zug, Ort, User
 
 
 class ZugForm(ModelForm):

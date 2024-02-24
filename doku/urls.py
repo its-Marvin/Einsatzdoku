@@ -28,5 +28,6 @@ urlpatterns = [
     path('training/', views.index_training, name='index_training'),
     path('training/all', views.get_aktive_trainings_einsaetze, name='alleTrainingsEinsaetze'),
     path('training/Einsatz', views.neues_Training, name='neuesTraining'),
+    path('neuer_benutzer', views.neuer_benutzer, name='neuerBenutzer'),
     path('Benutzer/', include('django.contrib.auth.urls')),
 ]

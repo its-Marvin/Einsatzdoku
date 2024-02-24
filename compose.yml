@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   reverse-proxy:
-    image: traefik:v2.10
+    image: traefik:v2.11
     #command: --api.insecure=true --providers.docker
     command: --providers.docker
     ports:
@@ -13,9 +13,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   doku:
-    image: ghcr.io/its-marvin/einsatzdoku
+    image: ghcr.io/its-marvin/einsatzdoku:1.0.1
     labels:
-      - "traefik.http.routers.einsatzdoku.rule=Host(`doku.local`)"
+      - "traefik.http.routers.einsatzdoku.rule=Host(`*`)"
     environment:
       DB_TYPE: POSTGRES
       DB_HOST: db
@@ -31,7 +31,7 @@ services:
     depends_on:
      - db
   static:
-    image: ghcr.io/its-marvin/einsatzdoku-static
+    image: ghcr.io/its-marvin/einsatzdoku-static:1.0.1
     labels:
       - "traefik.http.routers.einsatzdoku-static.rule=PathPrefix(`/static`)"
       - "traefik.http.routers.einsatzdoku-static.middlewares=einsatzdoku-static"

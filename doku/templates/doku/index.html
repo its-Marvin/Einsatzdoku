@@ -3,6 +3,22 @@
 {% block content %}
 
 	<div class="Modul linkesModul">
+		{% if first_run %}
+		<h2>Ersten Benutzer anlegen</h2>
+		<div class="minimize-button active">-</div>
+		<div class="minimize-this" style="display:block;">
+			<div class="spacer"></div>
+			<div class="Formular">
+				<form name="neuer_Benutzer"
+					  action="{% url 'doku:neuerBenutzer' %}"
+					  method="post" autocomplete="off">
+					{% csrf_token %}
+					<input hidden class="do-not-show" autocomplete="false">
+					<input name="username" placeholder="Benutzername (z.B. Vorname)" required>
+					<input type="password" name="password" placeholder="Passwort" required>
+					<input type="submit" value="Erstellen">
+				</form>
+		{% endif %}
 		{% if autor %}
 		<h2>Neuer Einsatz</h2>
 		<div class="minimize-button active">-</div>
