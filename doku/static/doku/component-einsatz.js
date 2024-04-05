@@ -16,14 +16,14 @@ class Einsatzliste extends React.Component {
 
     componentDidMount() {
         if (window.location.href.indexOf('training') > -1) {
-            this.fetchEinsaetze('/doku/training/all')
+            this.fetchEinsaetze('/training/all')
             this.interval = setInterval(() => {
-                this.fetchEinsaetze('/doku/training/all')
+                this.fetchEinsaetze('/training/all')
             }, 500);
         } else {
-            this.fetchEinsaetze('/doku/Einsatz/all')
+            this.fetchEinsaetze('/Einsatz/all')
             this.interval = setInterval(() => {
-                this.fetchEinsaetze('/doku/Einsatz/all')
+                this.fetchEinsaetze('/Einsatz/all')
             }, 500);
         }
     }
@@ -77,7 +77,7 @@ class Einsatzliste extends React.Component {
         }
         childs.push(e('b', {key: einsatz.pk + "_s"}, einsatz.fields.Stichwort));
         let list = e('li', {className: 'Wichtig', key: einsatz.pk}, childs);
-        let link = e('a', {href: '/doku/' + einsatz.pk, key: einsatz.pk}, list)
+        let link = e('a', {href: '/' + einsatz.pk, key: einsatz.pk}, list)
         return link;
     }
 
@@ -108,7 +108,7 @@ class Einsatzliste extends React.Component {
         childs.push(subchilds);
 
         let list = e('li', {key: einsatz.pk}, childs);
-        let link = e('a', {href: '/doku/' + einsatz.pk, key: einsatz.pk}, list)
+        let link = e('a', {href: '/' + einsatz.pk, key: einsatz.pk}, list)
         return link;
     }
 

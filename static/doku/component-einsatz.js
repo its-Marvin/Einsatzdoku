@@ -77,7 +77,7 @@ class Einsatzliste extends React.Component {
         }
         childs.push(e('b', {key: einsatz.pk + "_s"}, einsatz.fields.Stichwort));
         let list = e('li', {className: 'Wichtig', key: einsatz.pk}, childs);
-        let link = e('a', {href: '/doku/' + einsatz.pk, key: einsatz.pk}, list)
+        let link = e('a', {href: '/' + einsatz.pk, key: einsatz.pk}, list)
         return link;
     }
 
@@ -108,7 +108,7 @@ class Einsatzliste extends React.Component {
         childs.push(subchilds);
 
         let list = e('li', {key: einsatz.pk}, childs);
-        let link = e('a', {href: '/doku/' + einsatz.pk, key: einsatz.pk}, list)
+        let link = e('a', {href: '/' + einsatz.pk, key: einsatz.pk}, list)
         return link;
     }
 
