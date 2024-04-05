@@ -11,7 +11,7 @@ import os
 
 from django.utils.html import escape
 
-from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Lagekarte, Zug, \
+from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Zug, \
     Einsatzstellen_Notizen, ZugExtra, User
 from .models import Einsatzstellen, Einheiten
 
