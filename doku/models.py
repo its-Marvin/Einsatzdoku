@@ -197,13 +197,6 @@ class Einsatzstellen_Notizen(models.Model):
             return self.get_date_created() + " " + self.get_time_created()
 
 
-class Lagekarte(models.Model):
-    Erstellt = models.DateTimeField(auto_now_add=True, editable=False)
-    Bild = models.TextField(default="0", blank=False)
-    Data = models.TextField(default="")
-    Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT, editable=False)
-
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nightmode = models.BooleanField(default=True)

@@ -15,7 +15,6 @@ urlpatterns = [
     path('<int:einsatz_id>/Einsatznummer', views.einsatznummer, name='einsatznummer'),
     path('<int:einsatz_id>/Einsatzleiter', views.einsatzleiter, name='einsatzleiter'),
     path('<int:einsatz_id>/Adresse', views.adresse, name='adresse'),
-    path('<int:einsatz_id>/Lagekarte', views.lagekarte, name='lagekarte'),
     path('<int:einsatz_id>/Meldung', views.meldung, name='Meldung'),
     path('<int:einsatz_id>/Meldung/neu', views.neue_Meldung, name='neueMeldung'),
     path('<int:einsatz_id>/Personal', views.summe_Personal, name='summePersonal'),
