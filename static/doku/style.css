@@ -409,11 +409,6 @@ input {
     clear: both;
 }
 
-/* Lagekarte */
-#Lagekarte {
-	background-color: #fff;
-}
-
 input[type=color] {
     border: 1px solid var(--main-bg-color);
     width: 65%;
@@ -462,22 +457,6 @@ button p {
     outline: none;
 }
 
-#importBackground {
-    display: none;
-}
-
-.ArchivKarte {
-    width: 98%;
-    margin-bottom: -2px;
-    border-bottom: 2px solid var(--main-bg-color);
-    border-top: 3px solid var(--highlight-color);
-    border-left: 3px solid var(--highlight-color);
-    border-right: 3px solid var(--highlight-color);
-}
-
-.ArchivKarte img {
-    width: 100%;
-}
 .ArchivText {
     text-align: center;
     width: 98%;
@@ -489,38 +468,6 @@ button p {
     background: var(--highlight-color);
     padding: 3px;
     font-size: 80%;
-}
-
-#stiftdickeauswahl {
-    margin: 0px;
-    -webkit-appearance: none;
-    width: 98%;
-    height: 30px;
-    background: var(--element-color);
-    outline: none;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-    border: 1px solid var(--text-inverse-color);
-}
-
-#stiftdickeauswahl:hover {
-    background: var(--sec-bg-color);
-}
-
-#stiftdickeauswahl::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 28px;
-    height: 28px;
-    background: var(--highlight-color);
-    cursor: pointer;
-}
-
-#stiftdickeauswahl::-moz-range-thumb {
-    width: 28px;
-    height: 28px;
-    background: var(--highlight-color);
-    cursor: pointer;
 }
 
 .Einsatzstelle {
