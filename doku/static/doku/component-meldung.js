@@ -19,7 +19,7 @@ class Meldungsliste extends React.Component {
 
     fetchMeldungen() {
         const einsatz_id = window.location.pathname.split("/").pop();
-        fetch("/doku/" + einsatz_id + "/Meldung")
+        fetch("/" + einsatz_id + "/Meldung")
             .then(res => res.json())
             .then(
                 (json) => {
