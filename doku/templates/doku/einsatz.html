@@ -7,6 +7,17 @@
 		document.title = `Einsatzdokumentation - #{% if einsatz.extNummer %}
 		{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %} {{ einsatz.Stichwort.Kurzname }}
 		{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort.Langname }}{% endif %}`;
+		{% if auto_pdf_export %}
+			window.addEventListener('load', function () {
+				const iframe = document.createElement('iframe');
+				iframe.style.display = 'none';
+				iframe.src = "{% url 'doku:einsatzPDFExport' einsatz.Nummer %}";
+				document.body.appendChild(iframe);
+				if (window.history && window.history.replaceState) {
+					window.history.replaceState({}, document.title, "{% url 'doku:einsatz' einsatz.Nummer %}");
+				}
+			});
+		{% endif %}
 	</script>
 	{% include "doku/links.html" %}
 	

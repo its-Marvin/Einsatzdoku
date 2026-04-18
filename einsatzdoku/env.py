@@ -12,7 +12,7 @@ def invalid_configuration(key):
 
 DJANGO_SECRET = os.environ.get("DJANGO_SECRET")
 if DJANGO_SECRET is None: invalid_configuration("DJANGO_SECRET")
-DJANGO_DEBUG = True if os.environ.get("DJANGO_DEBUG", "False") == "True" else False
+DJANGO_DEBUG = True if os.environ.get("DJANGO_DEBUG", "False").strip().lower() == "true" else False
 DB_TYPE = os.environ.get("DB_TYPE", "SQLite")
 if DB_TYPE == "POSTGRES":
     DB_HOST = os.environ.get("DB_HOST")
