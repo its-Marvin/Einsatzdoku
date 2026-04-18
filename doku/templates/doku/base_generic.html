@@ -50,7 +50,9 @@
 				<div class="dropbtn"><b>Angemeldet: </b>{{ autor.first_name }}</div>
 				<div class="dropdown-content">
 					<a href="/Benutzer/logout?next={{ request.path }}">Abmelden</a>
-					<p onclick="print()">Drucken</p>
+					{% if einsatz %}
+						<a href="{% url 'doku:einsatzPDFExport' einsatz.Nummer %}">PDF exportieren</a>
+					{% endif %}
 					<a href="{% url 'doku:toggleNightmode' %}" class="nightmode">Tagmodus</a>
 					<a href="{% if training %}{% url 'doku:index' %}{% else %}{% url 'doku:index_training' %}{% endif %}">
 						{% if training %}Einsatzmodus{% else %}Trainingsmodus{% endif %}

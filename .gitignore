@@ -106,5 +106,8 @@ venv.bak/
 # PyCharm project files
 .idea
 
+# VSCode project files
+.vscode
+
 # old Dev files
 *.old

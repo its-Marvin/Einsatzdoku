@@ -12,6 +12,7 @@ urlpatterns = [
     path('Stichwort/<str:stichwort_id>', views.get_stichwort, name='getStichwort'),
     path('Nachtmodus', views.toggleNightmode, name='toggleNightmode'),
     path('<int:einsatz_id>', views.einsatz, name='einsatz'),
+    path('<int:einsatz_id>/export-pdf', views.einsatz_pdf_export, name='einsatzPDFExport'),
     path('<int:einsatz_id>/Einsatznummer', views.einsatznummer, name='einsatznummer'),
     path('<int:einsatz_id>/Einsatzleiter', views.einsatzleiter, name='einsatzleiter'),
     path('<int:einsatz_id>/Adresse', views.adresse, name='adresse'),

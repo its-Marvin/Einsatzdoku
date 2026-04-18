@@ -4,7 +4,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from datetime import datetime, timezone
+from django.utils import timezone
+from datetime import datetime
 import pytz
 from django.utils.safestring import mark_safe
 
@@ -27,7 +28,7 @@ class Meldung(models.Model):
         return self.Erstellt.astimezone(pytz.timezone("Europe/Berlin")).strftime('%d %B %Y')
 
     def getTimeOrDate(self):
-        if self.Erstellt.date() == datetime.now().date():
+        if self.Erstellt.date() == timezone.now().date():
             return self.getTimeCreated()
         else:
             return self.getDateCreated() + " " + self.getTimeCreated()
@@ -55,7 +56,7 @@ class Einsatz(models.Model):
         if self.Ende:
             return self.Ende - self.Erstellt
         else:
-            return datetime.now() - self.Erstellt
+            return timezone.now() - self.Erstellt
 
     def getMapsCompatibleAdress(self):
         if self.OrtFrei:
@@ -191,7 +192,7 @@ class Einsatzstellen_Notizen(models.Model):
         return self.Erfasst.astimezone(pytz.timezone("Europe/Berlin")).strftime('%a %H:%M')
 
     def get_time_or_date(self):
-        if self.Erfasst.date() == datetime.now().date():
+        if self.Erfasst.date() == timezone.now().date():
             return self.get_time_created()
         else:
             return self.get_date_created() + " " + self.get_time_created()

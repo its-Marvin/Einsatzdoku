@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   reverse-proxy:
-    image: traefik:v2.11
+    image: traefik:latest
     #command: --api.insecure=true --providers.docker
     command: --providers.docker
     ports:
@@ -13,7 +13,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   doku:
-    image: ghcr.io/its-marvin/einsatzdoku:1.0.2
+    #image: ghcr.io/its-marvin/einsatzdoku:1.0.2
+    build: .
     labels:
       - "traefik.http.routers.einsatzdoku.priority=1"
       - "traefik.http.routers.einsatzdoku.rule=HostRegexp(`{any:.+}`)"
@@ -42,13 +43,13 @@ services:
     restart: unless-stopped
   db:
     image: postgres:latest
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: doku
       POSTGRES_PASSWORD: CHANGEME
       POSTGRES_DB: doku
     volumes:
-      - elwdb:/var/lib/postgresql/data
+      - elwdb:/var/lib/postgresql
 
 volumes:
   elwdb:

@@ -5,9 +5,13 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseServerError
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
+from django.utils import timezone
+from weasyprint import HTML, CSS
 import json
 import datetime
 import os
+import io
 
 from django.utils.html import escape
 
@@ -94,11 +98,13 @@ def einsatz(request, einsatz_id):
     alle_Fahrzeuge = Fahrzeuge.objects.filter()
     alle_Zuege = Zug.objects.filter()
     autor = request.user if request.user.is_authenticated else None
+    auto_pdf_export = request.GET.get('auto_pdf', '0') == '1'
     context = {
         'training': einsatz.Training,
         'einstellungen': einstellungen,
         'autor': autor,
         'einsatz': einsatz,
+        'auto_pdf_export': auto_pdf_export,
         'aktive_Einsaetze': aktive_Einsaetze,
         'alle_Meldungen': alle_Meldungen,
         'eingesetzte_Fahrzeuge': eingesetzte_Fahrzeuge,
@@ -166,14 +172,14 @@ def oel(request, einsatz_id):
             elif 'Einsatzstelle' in request.POST:
                 e = Einsatzstellen.objects.filter(pk=request.POST['Einsatzstelle'])[0]
                 if 'DONE' in request.POST:
-                    e.Abgeschlossen = datetime.datetime.now()
+                    e.Abgeschlossen = timezone.now()
                     e_ort = e.OrtFrei if e.OrtFrei else e.Ort.Langname
                     inhalt = "Einsatzstelle \"" + e.Name + ", " + e_ort + "\" abgearbeitet von \"" + e.Einheit.Name + "\""
                     m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
                     m.save()
                 elif 'Einheit' in request.POST:
                     e.Einheit = Einheiten.objects.filter(pk=request.POST['Einheit'])[0]
-                    e.Zugewiesen = datetime.datetime.now()
+                    e.Zugewiesen = timezone.now()
                     e_ort = e.OrtFrei if e.OrtFrei else e.Ort.Langname
                     inhalt = "Einsatzstelle \"" + e.Name + ", " + e_ort + "\" übernommen von \"" + e.Einheit.Name + "\""
                     m = Meldung(Inhalt=inhalt, Wichtig=False, Einsatz=einsatz, Autor=autor, Zug=None)
@@ -403,8 +409,9 @@ def einsatzende(request, einsatz_id):
         einsatz = None
     else:
         if autor:
-            einsatz.Ende = datetime.datetime.now();
+            einsatz.Ende = timezone.now()
             einsatz.save()
+            return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz.Nummer]) + '?auto_pdf=1')
     return HttpResponseRedirect(reverse('doku:index'))
 
 
@@ -530,4 +537,75 @@ def neuer_benutzer(request):
             user.save()
             return redirect('doku:index')
     raise PermissionDenied
+
+
+def _build_einsatz_pdf_response(request, einsatz):
+    einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
+    alle_Meldungen = Meldung.objects.order_by('-Erstellt').filter(Einsatz=einsatz.Nummer)
+    eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz.Nummer).order_by('Name__Zug', 'Name__Ort__Langname',
+                                                                                       'Name__Funkname')
+    externe_zuege = ZugExtra.objects.filter(Einsatz=einsatz.Nummer).order_by('Name')
+    alle_Personen = Person.objects.filter(Einsatz=einsatz.Nummer)
+    fahrzeug_gesamt_zugfuehrer = 0
+    fahrzeug_gesamt_gruppenfuehrer = 0
+    fahrzeug_gesamt_mannschaft = 0
+    fahrzeug_gesamt_agt = 0
+    for fahrzeug in eingesetzte_Fahrzeuge:
+        fahrzeug_gesamt_zugfuehrer += fahrzeug.Zugfuehrer
+        fahrzeug_gesamt_gruppenfuehrer += fahrzeug.Gruppenfuehrer
+        fahrzeug_gesamt_mannschaft += fahrzeug.Mannschaft
+        fahrzeug_gesamt_agt += fahrzeug.Atemschutz
+    for zug in externe_zuege:
+        fahrzeug_gesamt_zugfuehrer += zug.Zugfuehrer
+        fahrzeug_gesamt_gruppenfuehrer += zug.Gruppenfuehrer
+        fahrzeug_gesamt_mannschaft += zug.Mannschaft
+        fahrzeug_gesamt_agt += zug.Atemschutz
+
+    fahrzeug_gesamt_personal = fahrzeug_gesamt_zugfuehrer + fahrzeug_gesamt_gruppenfuehrer + fahrzeug_gesamt_mannschaft
+    dauer = einsatz.getDuration()
+    dauer_gesamtsekunden = max(int(dauer.total_seconds()), 0)
+    dauer_tage = dauer_gesamtsekunden // 86400
+    dauer_stunden = (dauer_gesamtsekunden % 86400) // 3600
+    dauer_minuten = (dauer_gesamtsekunden % 3600) // 60
+
+    context = {
+        'einsatz': einsatz,
+        'einstellungen': einstellungen,
+        'alle_Meldungen': alle_Meldungen,
+        'eingesetzte_Fahrzeuge': eingesetzte_Fahrzeuge,
+        'externe_zuege': externe_zuege,
+        'fahrzeug_gesamt_zugfuehrer': fahrzeug_gesamt_zugfuehrer,
+        'fahrzeug_gesamt_gruppenfuehrer': fahrzeug_gesamt_gruppenfuehrer,
+        'fahrzeug_gesamt_mannschaft': fahrzeug_gesamt_mannschaft,
+        'fahrzeug_gesamt_agt': fahrzeug_gesamt_agt,
+        'fahrzeug_gesamt_personal': fahrzeug_gesamt_personal,
+        'alle_Personen': alle_Personen,
+        'dauer_tage': dauer_tage,
+        'dauer_stunden': dauer_stunden,
+        'dauer_minuten': dauer_minuten,
+        'today': timezone.now(),
+    }
+
+    html_string = render_to_string('doku/einsatz_pdf.html', context)
+    html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+    pdf = html.write_pdf()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    ext_nummer = einsatz.extNummer if einsatz.extNummer else einsatz.Nummer
+    filename = f'Einsatzdoku_{ext_nummer}_{einsatz.Stichwort.Kurzname}_{einsatz.Ort.Kurzname}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+def einsatz_pdf_export(request, einsatz_id):
+    """Generiert ein PDF-Export einer Einsatzdokumentation"""
+    try:
+        einsatz = Einsatz.objects.filter(Nummer=einsatz_id)[0]
+    except:
+        return HttpResponseServerError("Einsatz nicht gefunden")
+
+    try:
+        return _build_einsatz_pdf_response(request, einsatz)
+    except Exception as e:
+        return HttpResponseServerError(f"Fehler beim Generieren des PDF: {str(e)}")
 
