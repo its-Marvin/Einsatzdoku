@@ -4,4 +4,4 @@ psycopg2-binary>=2.9.9
 pytz >=2023.3.post1
 tzdata
 daphne >= 4.0.0
-WeasyPrint>=60.1
+WeasyPrint>=68.1
