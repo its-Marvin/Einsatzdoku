@@ -1,4 +1,5 @@
 {% load static %}
+{% load statik %}
 <html>
 <head>
 	<meta charset="UTF-8">
@@ -10,10 +11,10 @@
 
   	<script src="{%  static 'doku/bootstrap.min.js' %}"></script>
 	<script src="{%  static 'doku/popper.min.js' %}"></script>
-	<link rel="stylesheet" media="screen" type="text/css" href="{% static 'doku/style.css' %}">
-	<link rel="stylesheet" media="print" type="text/css" href="{% static 'doku/print.css' %}">
+	<link rel="stylesheet" media="screen" type="text/css" href="{% static_v 'doku/style.css' %}">
+	<link rel="stylesheet" media="print" type="text/css" href="{% static_v 'doku/print.css' %}">
 </head>
-<body>
+<body{% if einsatz %} data-einsatz-id="{{ einsatz.Nummer }}"{% endif %}>
 	{% csrf_token %}
 	<!-- Menu -->
 	<div class="topmenu{% if training %} Training{% endif %}">
@@ -49,7 +50,11 @@
 			<div class="dropdown">
 				<div class="dropbtn"><b>Angemeldet: </b>{{ autor.first_name }}</div>
 				<div class="dropdown-content">
-					<a href="/Benutzer/logout?next={{ request.path }}">Abmelden</a>
+					<form action="{% url 'doku:logout' %}" method="post" class="logout-form">
+						{% csrf_token %}
+						<input type="hidden" name="next" value="{{ request.path }}">
+						<button type="submit">Abmelden</button>
+					</form>
 					{% if einsatz %}
 						<a href="{% url 'doku:einsatzPDFExport' einsatz.Nummer %}">PDF exportieren</a>
 					{% endif %}
@@ -75,15 +80,19 @@
 	{% endblock %}
 	</div>
 	<!-- Custom scripts -->
-    <script type="text/javascript" src="{% static 'doku/scripts.js' %}"></script>
+    <script type="text/javascript" src="{% static_v 'doku/scripts.js' %}"></script>
     <!-- React basics-->
     <script type="text/javascript" src="{% static 'doku/react.production.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'doku/react-dom.production.min.js' %}"></script>
     <!--<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>-->
     <!-- React components -->
-    <script type="module" src="{% static 'doku/component-einsatz.js' %}"></script>
-    <script type="module" src="{% static 'doku/component-meldung.js' %}"></script>
+    <script type="module" src="{% static_v 'doku/component-einsatz.js' %}"></script>
+    <script type="module" src="{% static_v 'doku/component-meldung.js' %}"></script>
+    {% if einsatz %}
+        <!-- Live-Synchronisation des gesamten Einsatzzustands -->
+        <script type="module" src="{% static_v 'doku/einsatz-live.js' %}"></script>
+    {% endif %}
 	{% if autor and not autor.profile.nightmode %}
 		<script>
 			$(".nightmode").html("Nachtmodus");

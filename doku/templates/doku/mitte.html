@@ -5,14 +5,14 @@
 		<div class="spacer"></div>
 		{% if autor and not einsatz.Ende %}
 			<div class="Formular">
-				<form name="neue_Meldung" action="{% url 'doku:neueMeldung' einsatz.Nummer %}" method="post" autocomplete="off">
+				<form name="neue_Meldung" class="js-live-form" action="{% url 'doku:neueMeldung' einsatz.Nummer %}" method="post" autocomplete="off">
 					{% csrf_token %}
 					<input hidden class="do-not-show" autocomplete="false">
 					<select id="MeldungZug" name="Zug" onchange="rememberZug(this)">
-						<option value="" disabled selected>Zugauswahl</option>
+						<option value="" disabled {% if not vorgabe_zug %}selected{% endif %}>Zugauswahl</option>
 						<option value="">Kein Zug</option>
 						{% for Zug in alle_Zuege %}
-							<option value="{{ Zug.Name }}: ">{{ Zug.Name }}</option>
+							<option value="{{ Zug.Name }}: " {% if vorgabe_zug and Zug.pk == vorgabe_zug.pk %}selected{% endif %}>{{ Zug.Name }}</option>
 						{% endfor %}
 					</select>
 					<input id="MeldungInhalt" name="Inhalt" placeholder="Neue Meldung" autofocus required/>
@@ -25,9 +25,9 @@
 				</form>
 			</div>
 		{% endif %}
+		<!-- Wird live aus dem Einsatzzustand gerendert (component-meldung.js) -->
+		<div class="Meldungsliste do-not-print"></div>
 		{% if alle_Meldungen %}
-			<ul id="Meldungsliste" class="do-not-print"></ul>
-            <div class="Meldungsliste"></div>
 			<table class="do-not-show">
 				<tr>
 					<th class="spalte1">Meldungstext</th>

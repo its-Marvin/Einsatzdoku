@@ -238,7 +238,7 @@ li b {float: right;}
   width: 98%;
   z-index: 1;
 }
-.dropdown-content a, .dropdown-content  p {
+.dropdown-content a, .dropdown-content  p, .dropdown-content .logout-form button {
   margin: 0;
   color: black;
   padding: 12px 16px;
@@ -248,7 +248,20 @@ li b {float: right;}
   display: block;
   cursor: pointer;
 }
-.dropdown-content a:hover, .dropdown-content p:hover {
+.dropdown-content .logout-form {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.dropdown-content .logout-form button {
+  width: 100%;
+  box-sizing: border-box;
+  background: none;
+  font: inherit;
+  line-height: normal;
+  text-align: center;
+}
+.dropdown-content a:hover, .dropdown-content p:hover, .dropdown-content .logout-form button:hover {
 	background-color: var(--highlight-color);
 	color: var(--highlight-text-color);
 }
@@ -409,6 +422,11 @@ input {
     clear: both;
 }
 
+/* Lagekarte */
+#Lagekarte {
+	background-color: #fff;
+}
+
 input[type=color] {
     border: 1px solid var(--main-bg-color);
     width: 65%;
@@ -457,6 +475,22 @@ button p {
     outline: none;
 }
 
+#importBackground {
+    display: none;
+}
+
+.ArchivKarte {
+    width: 98%;
+    margin-bottom: -2px;
+    border-bottom: 2px solid var(--main-bg-color);
+    border-top: 3px solid var(--highlight-color);
+    border-left: 3px solid var(--highlight-color);
+    border-right: 3px solid var(--highlight-color);
+}
+
+.ArchivKarte img {
+    width: 100%;
+}
 .ArchivText {
     text-align: center;
     width: 98%;
@@ -468,6 +502,38 @@ button p {
     background: var(--highlight-color);
     padding: 3px;
     font-size: 80%;
+}
+
+#stiftdickeauswahl {
+    margin: 0px;
+    -webkit-appearance: none;
+    width: 98%;
+    height: 30px;
+    background: var(--element-color);
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border: 1px solid var(--text-inverse-color);
+}
+
+#stiftdickeauswahl:hover {
+    background: var(--sec-bg-color);
+}
+
+#stiftdickeauswahl::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    background: var(--highlight-color);
+    cursor: pointer;
+}
+
+#stiftdickeauswahl::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: var(--highlight-color);
+    cursor: pointer;
 }
 
 .Einsatzstelle {

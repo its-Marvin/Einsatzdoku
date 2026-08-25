@@ -1,5 +1,5 @@
 'use strict';
-import {get_zug} from './component-zug.js'
+import {subscribe} from './state-store.js'
 
 const e = React.createElement;
 const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni",
@@ -10,62 +10,32 @@ class Meldungsliste extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            error: null,
-            isLoaded: false,
-            data: '[]',
-            zug: {}
+            meldungen: []
         };
     }
 
-    fetchMeldungen() {
-        const einsatz_id = window.location.pathname.split("/").pop();
-        fetch("/" + einsatz_id + "/Meldung")
-            .then(res => res.json())
-            .then(
-                (json) => {
-                    this.setState({
-                        isLoaded: true,
-                        data: json
-                    });
-                },
-                (error) => {
-                    this.setState({
-                        isLoaded: true,
-                        error: error
-                    });
-                }
-            )
-    }
-
     componentDidMount() {
-        this.fetchMeldungen();
-        this.interval = setInterval(() => {
-            this.fetchMeldungen();
-        }, 500);
+        // Zentraler Store: identischer Zustand auf allen Geraeten
+        this.unsubscribe = subscribe((daten) => {
+            this.setState({meldungen: (daten && daten.meldungen) ? daten.meldungen : []});
+        });
     }
 
     componentWillUnmount() {
-        clearInterval(this.interval);
-    }
-
-    async get_zug_color_wrapper(zug_id) {
-        if (!(zug_id in this.state.zug)) {
-            this.state.zug[zug_id] = await get_zug(zug_id);
+        if (this.unsubscribe) {
+            this.unsubscribe();
         }
-        let zug = this.state.zug[zug_id];
-        document.querySelectorAll('.z_' + zug_id)
-                .forEach(domContainer => {
-                    domContainer.style.backgroundColor = JSON.parse(zug)[0].fields.Farbe;
-                });
     }
 
     getCustomDateString(meldung) {
-        const erstellt = new Date(meldung.fields.Erstellt);
+        const erstellt = new Date(meldung.Erstellt);
         const today = new Date();
         let date = "";
-        if (erstellt.getDate() < today.getDate()
-            || erstellt.getMonth() < today.getMonth()
-            || erstellt.getFullYear() < today.getFullYear()) {
+        // Tagesgenauer Vergleich: nur wenn die Meldung nicht von heute ist,
+        // wird zusaetzlich das Datum ausgegeben.
+        const erstelltTag = new Date(erstellt.getFullYear(), erstellt.getMonth(), erstellt.getDate());
+        const heuteTag = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        if (erstelltTag.getTime() !== heuteTag.getTime()) {
             date = ("0" + erstellt.getDate().toString()).slice(-2)
                 + ". " + monthNames[erstellt.getMonth()]
                 + " " + erstellt.getFullYear().toString()
@@ -77,28 +47,26 @@ class Meldungsliste extends React.Component {
     }
 
     render() {
-        let json = JSON.parse(this.state.data);
-        let array = [];
-        let childs = [];
-        for (let i = 0; i < json.length; i++) {
-            const meldung = json[i];
-            let text = this.getCustomDateString(meldung)
-            text += " - " + meldung.fields.Inhalt;
-            if (meldung.fields.Wichtig) {
-                childs.unshift(e('li', {className: "Meldung Wichtig"}, text));
-            } else {
-                if (meldung.fields.Zug) {
-                    let zug_id = meldung.fields.Zug;
-                    childs.unshift(e('li', {className: "Meldung z_" + zug_id}, text));
-                    this.get_zug_color_wrapper(zug_id);
-                } else {
-                //{% if not Meldung.Wichtig %}style="background-color:{{ Meldung.Zug.Farbe }};"{% endif %}
-                    childs.unshift(e('li', {className: "Meldung"}, text));
-                }
+        // Explizit sortieren (neueste zuerst), damit die Anzeige nicht von der
+        // Reihenfolge der Server-Antwort abhaengt. Bei identischen Zeitstempeln
+        // entscheidet die pk - genau wie im Django-Modell.
+        const meldungen = this.state.meldungen.slice().sort((a, b) => {
+            const diff = new Date(b.Erstellt) - new Date(a.Erstellt);
+            return diff !== 0 ? diff : (b.pk - a.pk);
+        });
+        const childs = meldungen.map(meldung => {
+            const text = this.getCustomDateString(meldung) + " - " + meldung.Inhalt;
+            const props = {
+                key: meldung.pk,
+                className: meldung.Wichtig ? "Meldung Wichtig" : "Meldung",
+                title: meldung.Autor ? meldung.Autor : undefined
+            };
+            if (!meldung.Wichtig && meldung.Farbe) {
+                props.style = {backgroundColor: meldung.Farbe};
             }
-        }
-        array.push(childs);
-        return e('ul', null, array);
+            return e('li', props, text);
+        });
+        return e('ul', null, childs);
     }
 }
 

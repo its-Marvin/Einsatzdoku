@@ -3,21 +3,29 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, StreamingHttpResponse
 from django.shortcuts import redirect
-from django.template.loader import render_to_string
 from django.utils import timezone
-from weasyprint import HTML, CSS
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.db.models import Count
+import asyncio
 import json
-import datetime
 import os
-import io
+import time
 
 from django.utils.html import escape
 
 from .models import Einstellungen, Einsatz, Meldung, Fahrzeug, Fahrzeuge, Stichwort, Ort, Person, Zug, \
-    Einsatzstellen_Notizen, ZugExtra, User
+    Einsatzstellen_Notizen, ZugExtra, User, Profile, EinsatzRevision
 from .models import Einsatzstellen, Einheiten
+from .pdf import build_einsatz_pdf
+
+# Takt, in dem der Server nach Aenderungen schaut (Sekunden)
+SSE_POLL_INTERVAL = 1.0
+# Abstand der Keep-Alive-Kommentare, damit Proxies die Verbindung offen halten
+SSE_PING_INTERVAL = 20.0
+# Maximale Lebensdauer eines Streams; danach verbindet der Browser neu
+SSE_MAX_LIFETIME = 3600.0
 
 
 def index(request):
@@ -84,6 +92,23 @@ def index_training(request):
     return render(request, 'doku/index.html', context)
 
 
+def zug_fuer_ort(ort):
+    """Ermittelt den Zug, der zu einem Einsatzort gehoert.
+
+    Der Zug wird ueber die am Ort stationierten Fahrzeuge bestimmt. Beim
+    Sonder-Ort "Freitext" (PLZ 0) gibt es keinen zugehoerigen Zug, damit die
+    Meldungserfassung dann ohne Vorauswahl startet.
+    """
+    if ort is None or ort.PLZ == 0:
+        return None
+    zug_id = Fahrzeuge.objects.filter(Ort=ort).values('Zug') \
+        .annotate(anzahl=Count('Zug')).order_by('-anzahl', 'Zug') \
+        .values_list('Zug', flat=True).first()
+    if zug_id is None:
+        return None
+    return Zug.objects.filter(pk=zug_id).first()
+
+
 def einsatz(request, einsatz_id):
     einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
     try:
@@ -91,7 +116,7 @@ def einsatz(request, einsatz_id):
     except:
         einsatz = None
     aktive_Einsaetze = Einsatz.objects.filter(Ende=None).filter(Training=einsatz.Training).order_by('-Nummer')
-    alle_Meldungen = Meldung.objects.order_by('-Erstellt').filter(Einsatz=einsatz_id)
+    alle_Meldungen = Meldung.objects.order_by('-Erstellt', '-pk').filter(Einsatz=einsatz_id)
     eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz_id).order_by('Name__Zug', 'Name__Ort__Langname',
                                                                                  'Name__Funkname')
     alle_Personen = Person.objects.filter(Einsatz=einsatz_id)
@@ -99,6 +124,7 @@ def einsatz(request, einsatz_id):
     alle_Zuege = Zug.objects.filter()
     autor = request.user if request.user.is_authenticated else None
     auto_pdf_export = request.GET.get('auto_pdf', '0') == '1'
+    vorgabe_zug = zug_fuer_ort(einsatz.Ort if einsatz else None)
     context = {
         'training': einsatz.Training,
         'einstellungen': einstellungen,
@@ -111,6 +137,7 @@ def einsatz(request, einsatz_id):
         'alle_Fahrzeuge': alle_Fahrzeuge,
         'alle_Personen': alle_Personen,
         'alle_Zuege': alle_Zuege,
+        'vorgabe_zug': vorgabe_zug,
     }
     return render(request, 'doku/einsatz.html', context)
 
@@ -327,8 +354,8 @@ def neue_Meldung(request, einsatz_id):
         else:
             inhalt = request.POST['Zug']
         inhalt += request.POST['Inhalt']
-    except:
-        return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
+    except Exception:
+        return _state_antwort(request, einsatz_id, fehler="Meldung konnte nicht gelesen werden.", status=400)
     else:
         try:
             zug = request.POST.get('Zug', None)[:-2]
@@ -342,22 +369,22 @@ def neue_Meldung(request, einsatz_id):
         # Neue Meldung anlegen
         m = Meldung(Inhalt=inhalt, Wichtig=wichtig, Einsatz=einsatz, Autor=request.user, Zug=zug)
         m.save()
-        return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
+        return _state_antwort(request, einsatz_id)
 
 
 def neue_Person(request, einsatz_id):
     if not request.user.is_authenticated:
         raise PermissionDenied
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
-    # if einsatz.Ende:
-    #    raise PermissionDenied
+    if einsatz.Ende:
+        raise PermissionDenied
     try:
         nachname = request.POST['Nachname']
         vorname = request.POST['Vorname']
         rolle = request.POST['Rolle']
         notizen = request.POST['Notizen']
-    except:
-        return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
+    except Exception:
+        return _state_antwort(request, einsatz_id, fehler="Person konnte nicht gelesen werden.", status=400)
     else:
         try:
             p = Person.objects.filter(Einsatz=einsatz).filter(Nachname=nachname).filter(Vorname=vorname)[0]
@@ -365,7 +392,7 @@ def neue_Person(request, einsatz_id):
         except:
             p = Person(Nachname=nachname, Vorname=vorname, Rolle=rolle, Notizen=notizen, Einsatz=einsatz)
         p.save()
-        return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
+        return _state_antwort(request, einsatz_id)
 
 
 def neues_Fahrzeug(request, einsatz_id):
@@ -383,8 +410,8 @@ def neues_Fahrzeug(request, einsatz_id):
         atemschutz = request.POST.get('Atemschutz', 0)
         if atemschutz == "":
             atemschutz = 0
-    except:
-        return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
+    except Exception:
+        return _state_antwort(request, einsatz_id, fehler="Ungueltige Fahrzeug- oder Staerkeangabe.", status=400)
     else:
         try:
             f = Fahrzeug.objects.filter(Einsatz=einsatz).filter(Name=name)[0]
@@ -396,7 +423,7 @@ def neues_Fahrzeug(request, einsatz_id):
             f = Fahrzeug(Name=name, Zugfuehrer=zugfuehrer, Gruppenfuehrer=gruppenfuehrer, Mannschaft=mannschaft,
                          Atemschutz=atemschutz, Einsatz=einsatz, Autor=request.user)
         f.save()
-        return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
+        return _state_antwort(request, einsatz_id)
 
 
 def einsatzende(request, einsatz_id):
@@ -411,7 +438,16 @@ def einsatzende(request, einsatz_id):
         if autor:
             einsatz.Ende = timezone.now()
             einsatz.save()
-            return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz.Nummer]) + '?auto_pdf=1')
+            ziel = reverse('doku:einsatz', args=[einsatz.Nummer]) + '?auto_pdf=1'
+            if _wants_json(request):
+                return JsonResponse({
+                    'ok': True,
+                    'version': EinsatzRevision.get_version(einsatz.Nummer),
+                    'redirect': ziel,
+                })
+            return HttpResponseRedirect(ziel)
+    if _wants_json(request):
+        return JsonResponse({'ok': False, 'error': 'Einsatz nicht gefunden.'}, status=404)
     return HttpResponseRedirect(reverse('doku:index'))
 
 
@@ -419,11 +455,157 @@ def meldung(request, einsatz_id):
     einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
     lastID = request.GET.get('lastID', 0)
     neueMeldungen = serializers.serialize("json", Meldung.objects.select_related().filter(Einsatz=einsatz).filter(
-        pk__gt=lastID))
+        pk__gt=lastID).order_by('Erstellt', 'pk'))
     return JsonResponse(neueMeldungen, safe=False)
 
 
-def summe_Personal(request, einsatz_id):
+# ---------------------------------------------------------------------------
+# Live-Synchronisation des kompletten Einsatzzustands
+# ---------------------------------------------------------------------------
+
+def _iso(zeitpunkt):
+    return zeitpunkt.isoformat() if zeitpunkt else None
+
+
+def _wants_json(request):
+    """Erkennt Anfragen der Live-Oberflaeche (fetch) gegenueber Formular-Posts."""
+    if request.headers.get('X-Requested-With') in ('fetch', 'XMLHttpRequest'):
+        return True
+    return 'application/json' in request.headers.get('Accept', '')
+
+
+def _state_antwort(request, einsatz_id, fehler=None, status=200):
+    """Antwort fuer Schreibzugriffe: JSON fuer fetch, sonst klassischer Redirect."""
+    if _wants_json(request):
+        daten = {
+            'ok': fehler is None,
+            'version': EinsatzRevision.get_version(einsatz_id),
+        }
+        if fehler:
+            daten['error'] = str(fehler)
+        return JsonResponse(daten, status=status if fehler else 200)
+    if fehler:
+        return HttpResponse("<h1>Fehler bei der Verarbeitung</h1><h2>" + escape(str(fehler)) + "</h2>")
+    return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
+
+
+def build_einsatz_state(einsatz):
+    """Kompletter, fuer alle Clients identischer Zustand eines Einsatzes."""
+    meldungen = Meldung.objects.filter(Einsatz=einsatz).select_related('Autor', 'Zug').order_by('-Erstellt', '-pk')
+    fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz).select_related('Name', 'Name__Zug', 'Name__Ort') \
+        .order_by('Name__Zug', 'Name__Ort__Langname', 'Name__Funkname')
+    zuege_extra = ZugExtra.objects.filter(Einsatz=einsatz).order_by('Name')
+    personen = Person.objects.filter(Einsatz=einsatz).order_by('Nachname', 'Vorname')
+    einsatzstellen = Einsatzstellen.objects.filter(Einsatz=einsatz).select_related('Ort', 'Einheit')
+
+    return {
+        'version': EinsatzRevision.get_version(einsatz.pk),
+        'einsatz': {
+            'Nummer': einsatz.Nummer,
+            'extNummer': einsatz.extNummer,
+            'Einsatzleiter': einsatz.Einsatzleiter,
+            'Stichwort': str(einsatz.Stichwort),
+            'Adresse': einsatz.Adresse,
+            'Ort': einsatz.Ort.Langname,
+            'OrtFrei': einsatz.OrtFrei,
+            'Erstellt': _iso(einsatz.Erstellt),
+            'Ende': _iso(einsatz.Ende),
+            'Training': einsatz.Training,
+        },
+        'meldungen': [{
+            'pk': m.pk,
+            'Inhalt': m.Inhalt,
+            'Wichtig': m.Wichtig,
+            'Erstellt': _iso(m.Erstellt),
+            'Autor': (m.Autor.get_full_name() or m.Autor.get_username()) if m.Autor else "",
+            'Zug': m.Zug.Name if m.Zug else None,
+            'Farbe': m.Zug.Farbe if m.Zug else None,
+        } for m in meldungen],
+        'fahrzeuge': [{
+            'pk': f.pk,
+            'Funkname': f.Name.Funkname,
+            'Typ': f.Name.Typ,
+            'Ort': f.Name.Ort.Langname,
+            'Zug': f.Name.Zug.Name,
+            'Farbe': f.Name.Zug.Farbe,
+            'Zugfuehrer': f.Zugfuehrer,
+            'Gruppenfuehrer': f.Gruppenfuehrer,
+            'Mannschaft': f.Mannschaft,
+            'Atemschutz': f.Atemschutz,
+        } for f in fahrzeuge],
+        'zuege_extra': [{
+            'pk': z.pk,
+            'Name': z.Name,
+            'Zugfuehrer': z.Zugfuehrer,
+            'Gruppenfuehrer': z.Gruppenfuehrer,
+            'Mannschaft': z.Mannschaft,
+            'Atemschutz': z.Atemschutz,
+        } for z in zuege_extra],
+        'staerken': berechne_summe_personal(einsatz.pk),
+        'personen': [{
+            'pk': p.pk,
+            'Nachname': p.Nachname,
+            'Vorname': p.Vorname,
+            'Rolle': p.Rolle,
+            'Notizen': p.Notizen,
+        } for p in personen],
+        'einsatzstellen': {
+            'gesamt': einsatzstellen.count(),
+            'offen': einsatzstellen.filter(Abgeschlossen=None).count(),
+        },
+    }
+
+
+def einsatz_state(request, einsatz_id):
+    """Liefert den gesamten Einsatzzustand als JSON-Snapshot."""
+    einsatz = get_object_or_404(Einsatz, pk=einsatz_id)
+    return JsonResponse(build_einsatz_state(einsatz))
+
+
+async def einsatz_events(request, einsatz_id):
+    """Server-Sent-Events: meldet allen Clients Aenderungen am Einsatz.
+
+    Es wird nur die Versionsnummer uebertragen; der Client holt daraufhin den
+    kompletten Snapshot. So bleiben alle geoeffneten Geraete auf demselben
+    Stand, ohne dass zusaetzliche Infrastruktur (Redis o.ae.) noetig ist.
+    """
+    try:
+        client_version = int(request.GET.get('version', 0))
+    except (TypeError, ValueError):
+        client_version = 0
+
+    async def event_stream():
+        letzte_version = client_version
+        letzter_ping = time.monotonic()
+        start = time.monotonic()
+        # Initialer Kommentar, damit der Browser die Verbindung als offen sieht
+        yield ": verbunden\n\n"
+        try:
+            while time.monotonic() - start < SSE_MAX_LIFETIME:
+                aktuelle_version = await EinsatzRevision.objects.filter(Einsatz_id=einsatz_id) \
+                    .values_list('Version', flat=True).afirst()
+                aktuelle_version = aktuelle_version or 0
+                if aktuelle_version != letzte_version:
+                    letzte_version = aktuelle_version
+                    letzter_ping = time.monotonic()
+                    yield "event: change\ndata: " + json.dumps({'version': aktuelle_version}) + "\n\n"
+                elif time.monotonic() - letzter_ping > SSE_PING_INTERVAL:
+                    letzter_ping = time.monotonic()
+                    yield ": ping\n\n"
+                await asyncio.sleep(SSE_POLL_INTERVAL)
+        except asyncio.CancelledError:
+            # Client hat die Verbindung geschlossen
+            raise
+
+    antwort = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    antwort['Cache-Control'] = 'no-cache, no-transform'
+    antwort['X-Accel-Buffering'] = 'no'
+    antwort['Connection'] = 'keep-alive'
+    return antwort
+
+
+def berechne_summe_personal(einsatz_id):
+    """Staerken je Zug (inkl. externer Zuege) und Gesamtsumme."""
     zuege = Zug.objects.all()
     extra_zuege = ZugExtra.objects.filter(Einsatz=einsatz_id)
     summe = {}
@@ -467,7 +649,11 @@ def summe_Personal(request, einsatz_id):
         'mannschaft': ms,
         'atemschutz': agt
     }
-    return JsonResponse(json.dumps(summe), safe=False)
+    return summe
+
+
+def summe_Personal(request, einsatz_id):
+    return JsonResponse(json.dumps(berechne_summe_personal(einsatz_id)), safe=False)
 
 
 def add_extra_zug(request, einsatz_id):
@@ -485,8 +671,8 @@ def add_extra_zug(request, einsatz_id):
         atemschutz = request.POST.get('Atemschutz', 0)
         if atemschutz == "":
             atemschutz = 0
-    except:
-        return HttpResponse("<h1>Fehler bei der Verarbeitung</h1>")
+    except Exception:
+        return _state_antwort(request, einsatz_id, fehler="Ungueltige Zug- oder Staerkeangabe.", status=400)
     else:
         try:
             z = ZugExtra.objects.filter(Einsatz=einsatz).filter(Name=name)[0]
@@ -498,7 +684,7 @@ def add_extra_zug(request, einsatz_id):
             z = ZugExtra(Name=name, Zugfuehrer=zugfuehrer, Gruppenfuehrer=gruppenfuehrer, Mannschaft=mannschaft,
                          Atemschutz=atemschutz, Einsatz=einsatz)
         z.save()
-        return HttpResponseRedirect(reverse('doku:einsatz', args=[einsatz_id]))
+        return _state_antwort(request, einsatz_id)
 
 
 def get_ort(request, ort_id):
@@ -520,10 +706,17 @@ def get_zug(request, zug_id):
 
 
 def toggleNightmode(request):
-    user = request.user if request.user.is_authenticated else None
-    user.profile.nightmode = False if user.profile.nightmode else True
-    user.profile.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+    profil = Profile.objects.get_or_create(user=request.user)[0]
+    profil.nightmode = not profil.nightmode
+    profil.save()
+    ziel = request.META.get('HTTP_REFERER', '/')
+    # Offene Weiterleitungen auf fremde Hosts verhindern
+    if not url_has_allowed_host_and_scheme(ziel, allowed_hosts={request.get_host()},
+                                           require_https=request.is_secure()):
+        ziel = '/'
+    return HttpResponseRedirect(ziel)
 
 
 def neuer_benutzer(request):
@@ -541,7 +734,7 @@ def neuer_benutzer(request):
 
 def _build_einsatz_pdf_response(request, einsatz):
     einstellungen = Einstellungen.objects.get_or_create(pk=1)[0]
-    alle_Meldungen = Meldung.objects.order_by('-Erstellt').filter(Einsatz=einsatz.Nummer)
+    alle_Meldungen = Meldung.objects.order_by('-Erstellt', '-pk').filter(Einsatz=einsatz.Nummer)
     eingesetzte_Fahrzeuge = Fahrzeug.objects.filter(Einsatz=einsatz.Nummer).order_by('Name__Zug', 'Name__Ort__Langname',
                                                                                        'Name__Funkname')
     externe_zuege = ZugExtra.objects.filter(Einsatz=einsatz.Nummer).order_by('Name')
@@ -586,9 +779,7 @@ def _build_einsatz_pdf_response(request, einsatz):
         'today': timezone.now(),
     }
 
-    html_string = render_to_string('doku/einsatz_pdf.html', context)
-    html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
-    pdf = html.write_pdf()
+    pdf = build_einsatz_pdf(context)
 
     response = HttpResponse(pdf, content_type='application/pdf')
     ext_nummer = einsatz.extNummer if einsatz.extNummer else einsatz.Nummer
