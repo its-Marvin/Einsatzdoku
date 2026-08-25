@@ -52,11 +52,11 @@
 }
 
 .toggle-nav-sidebar::before {
-    content: '\00BB';
+    content: "\00BB";
 }
 
 .main.shifted .toggle-nav-sidebar::before {
-    content: '\00AB';
+    content: "\00AB";
 }
 
 .main > #nav-sidebar {
@@ -102,6 +102,12 @@
     background: var(--selected-row);
 }
 
+@media (forced-colors: active) {
+    #nav-sidebar .current-model {
+        background-color: SelectedItem;
+    }
+}
+
 .main > #nav-sidebar + .content {
     max-width: calc(100% - 23px);
 }
@@ -111,7 +117,8 @@
 }
 
 @media (max-width: 767px) {
-    #nav-sidebar, #toggle-nav-sidebar {
+    #nav-sidebar,
+    #toggle-nav-sidebar {
         display: none;
     }
 

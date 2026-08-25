@@ -1,11 +1,11 @@
-from django.db import models
+from django.db import models, IntegrityError
+from django.db.models import F
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
-from datetime import datetime
 import pytz
 from django.utils.safestring import mark_safe
 
@@ -17,6 +17,12 @@ class Meldung(models.Model):
     Autor = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, editable=False)
     Einsatz = models.ForeignKey('Einsatz', on_delete=models.PROTECT, editable=False)
     Zug = models.ForeignKey('Zug', on_delete=models.SET_NULL, null=True, default=None, blank=True)
+
+    class Meta:
+        # Absicherung: ohne expliziten Tiebreaker ist die Reihenfolge bei
+        # identischen Zeitstempeln (z.B. MySQL DATETIME ohne Mikrosekunden)
+        # nicht deterministisch.
+        ordering = ('Erstellt', 'pk')
 
     def __str__(self):
         return self.Erstellt.strftime('%H:%M:%S') + " - " + str(self.Inhalt) + " [" + str(self.Autor) + "]"
@@ -231,6 +237,74 @@ class Einstellungen(SingletonModel):
 
     def __str__(self):
         return "Allgemeine Einstellungen"
+
+
+class EinsatzRevision(models.Model):
+    """Zaehler, der bei jeder Aenderung an einem Einsatz erhoeht wird.
+
+    Damit koennen alle geoeffneten Clients erkennen, ob sich der Zustand des
+    Einsatzes geaendert hat, ohne jedes Mal den kompletten Datenbestand zu
+    uebertragen. Der Zaehler liegt bewusst in der Datenbank, damit die
+    Synchronisation auch mit mehreren Worker-Prozessen funktioniert und keine
+    zusaetzliche Infrastruktur (z.B. Redis) noetig ist.
+    """
+    Einsatz = models.OneToOneField('Einsatz', on_delete=models.CASCADE, primary_key=True,
+                                   related_name='Revision', editable=False)
+    Version = models.BigIntegerField(default=0, editable=False)
+    Geaendert = models.DateTimeField(default=timezone.now, editable=False)
+
+    def __str__(self):
+        return "Einsatz " + str(self.Einsatz_id) + " (Version " + str(self.Version) + ")"
+
+    @classmethod
+    def get_version(cls, einsatz_id):
+        version = cls.objects.filter(Einsatz_id=einsatz_id).values_list('Version', flat=True).first()
+        return version or 0
+
+    @classmethod
+    def bump(cls, einsatz_id):
+        """Erhoeht den Zaehler atomar (race-condition-sicher)."""
+        if einsatz_id is None:
+            return
+        updated = cls.objects.filter(Einsatz_id=einsatz_id).update(Version=F('Version') + 1,
+                                                                   Geaendert=timezone.now())
+        if not updated:
+            try:
+                cls.objects.create(Einsatz_id=einsatz_id, Version=1)
+            except IntegrityError:
+                # Parallel angelegt -> einfach hochzaehlen
+                cls.objects.filter(Einsatz_id=einsatz_id).update(Version=F('Version') + 1,
+                                                                 Geaendert=timezone.now())
+
+
+def _einsatz_id_of(instance):
+    if isinstance(instance, Einsatz):
+        return instance.pk
+    return getattr(instance, 'Einsatz_id', None)
+
+
+# Alle Modelle, deren Aenderungen fuer die Live-Ansicht relevant sind
+VERSIONIERTE_MODELLE = (
+    Einsatz,
+    Meldung,
+    Fahrzeug,
+    ZugExtra,
+    Person,
+    Einheiten,
+    Einsatzstellen,
+    Einsatzstellen_Notizen,
+)
+
+
+def _bump_revision(sender, instance, **kwargs):
+    EinsatzRevision.bump(_einsatz_id_of(instance))
+
+
+for _modell in VERSIONIERTE_MODELLE:
+    post_save.connect(_bump_revision, sender=_modell,
+                      dispatch_uid='revision_save_' + _modell.__name__)
+    post_delete.connect(_bump_revision, sender=_modell,
+                        dispatch_uid='revision_delete_' + _modell.__name__)
 
 
 @receiver(post_save, sender=User)

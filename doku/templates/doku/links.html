@@ -9,15 +9,18 @@
                 {% if autor %}
                     <div id="eNr"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
                         <input name="extENr"
+                               type="text"
+                               inputmode="numeric"
+                               pattern="[0-9]*"
+                               maxlength="18"
+                               data-numeric-only
+                               title="Bitte nur Ziffern eingeben"
+                               data-live-field="{% url 'doku:einsatznummer' einsatz.Nummer %}"
                                placeholder="{{ einsatz.Nummer }}" {% if einsatz.extNummer %}
                                value="{{ einsatz.extNummer }}"{% endif %} autocomplete="false"></div>
-                    <script>
-                        $("#eNr").focusout(function(){
-                            var einsatznummer = $("input[name='extENr']").val();
-                            let url = "{% url 'doku:einsatznummer' einsatz.Nummer %}";
-                            $.post( url , { extENr : einsatznummer } );
-                        })
-                    </script>
+                {% else %}
+                    {# Nur-Lese-Anzeige fuer nicht angemeldete Betrachter #}
+                    &nbsp;&nbsp;&nbsp;<span data-live-text="extNummer">{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{ einsatz.Nummer }}{% endif %}</span><br>
                 {% endif %}
             {% else %}
                 &nbsp;&nbsp;&nbsp;{% if einsatz.extNummer %}{{ einsatz.extNummer }}{% else %}{{einsatz.Nummer}}{% endif %}<br>
@@ -29,17 +32,13 @@
                 {% if autor %}
                 <div id="einsatzleiter"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
                     <input name="einsatzleiter"
+                           data-live-field="{% url 'doku:einsatzleiter' einsatz.Nummer %}"
                            placeholder="Kein Einsatzleiter eingetragen!" {% if einsatz.Einsatzleiter %}
                            value="{{ einsatz.Einsatzleiter }}"{% endif %}
                            autocomplete="false">
                 </div>
-                <script>
-                    $("#einsatzleiter").focusout(function(){
-                        var einsatzleiter = $("input[name='einsatzleiter']").val();
-                        let url = "{% url 'doku:einsatzleiter' einsatz.Nummer %}";
-                        $.post( url , { einsatzleiter : einsatzleiter } );
-                    })
-                </script>
+                {% else %}
+                    &nbsp;&nbsp;&nbsp;<span data-live-text="Einsatzleiter">{% if einsatz.Einsatzleiter %}{{ einsatz.Einsatzleiter }}{% else %}Kein Einsatzleiter eingetragen!{% endif %}</span><br>
                 {% endif %}
             {% else %}
                 &nbsp;&nbsp;&nbsp;{% if einsatz.Einsatzleiter %}
@@ -57,18 +56,15 @@
                 <div id="adresse"><span class="do-not-show">&nbsp;&nbsp;&nbsp;</span>
                     <input id="adresse-input"
                            name="adresse"
+                           data-live-field="{% url 'doku:adresse' einsatz.Nummer %}"
                            placeholder="Straße/Objekt, " {% if einsatz.Adresse %}
                            value="{{ einsatz.Adresse }}"{% endif %}
                            autocomplete="false">
                 </div>
                     &nbsp;&nbsp;&nbsp;{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort }}{% endif %}
-                <script>
-                    $("#adresse").focusout(function(){
-                        var adresse = $("input[name='adresse']").val();
-                        let url = "{% url 'doku:adresse' einsatz.Nummer %}";
-                        $.post( url , { adresse : adresse } );
-                    })
-                </script>
+                {% else %}
+                    &nbsp;&nbsp;&nbsp;<span data-live-text="Adresse">{% if einsatz.Adresse %}{{ einsatz.Adresse }}{% endif %}</span><br>
+                    &nbsp;&nbsp;&nbsp;{% if einsatz.OrtFrei %}{{ einsatz.OrtFrei }}{% else %}{{ einsatz.Ort }}{% endif %}
                 {% endif %}
             {% else %}
             &nbsp;&nbsp;
@@ -96,6 +92,7 @@
         &nbsp;
         {% if autor and not einsatz.Ende %}
             <form name="einsatzende"
+                  class="js-live-form"
                   action="{% url 'doku:einsatzende' einsatz.Nummer %}"
                   method="post"
                   autocomplete="off">
@@ -114,9 +111,10 @@
     <div class="minimize-button active">-</div>
     <div class="minimize-this" style="display:block;">
         <div class="spacer"></div>
-        {% if autor %}
+        {% if autor and not einsatz.Ende %}
             <form id="neue_Person"
                   name="neue_Person"
+                  class="js-live-form"
                   action="{% url 'doku:neuePerson' einsatz.Nummer %}"
                   method="post"
                   autocomplete="off">
@@ -129,20 +127,8 @@
                 <input type="submit" value="Hinzufügen / Ändern">
             </form>
         {% endif %}
-        {% if alle_Personen %}
-            <ul>
-            {% for person in alle_Personen %}
-                <li class="Person"
-                    {% if person.Notizen %}data-toggle="tooltip" title="{{ person.Notizen }}"{% endif %}
-                    data-placement="bottom">
-                    {{ person }}
-                    <ul class="do-not-show">
-                        <li>{{ person.Notizen }}</li>
-                    </ul>
-                </li>
-            {% endfor %}
-            </ul>
-        {% endif %}
+        <!-- Wird live aus dem Einsatzzustand gerendert (einsatz-live.js) -->
+        <ul id="Personenliste"></ul>
     </div>
     {% endif %}
 </div>

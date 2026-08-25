@@ -27,23 +27,32 @@ if($("input[name='Besatzung']").length){
 }
 
 // Ausfüllen des Formulars für neue Person, wenn vorhandene Person angeklickt wird
-$(".Person").click(function(e) {
-	formObject = document.forms['neue_Person'];
-	content = this.innerHTML.split("<")[0];
-	formObject.elements['Nachname'].value = content.split(",")[0].trim();
-	formObject.elements['Vorname'].value = content.split(",")[1].split("(")[0].trim();
-	formObject.elements['Rolle'].value = content.split(",")[1].split("(")[1].replace(")", "").trim();
-	formObject.elements['Notizen'].value = this.children[0].children[0].innerHTML.trim();
+// (delegiert, da die Liste live neu gerendert wird)
+$(document).on("click", ".Person", function(e) {
+	var formObject = document.forms['neue_Person'];
+	if (!formObject) {
+		return;
+	}
+	formObject.elements['Nachname'].value = this.dataset.nachname || "";
+	formObject.elements['Vorname'].value = this.dataset.vorname || "";
+	formObject.elements['Rolle'].value = this.dataset.rolle || "";
+	formObject.elements['Notizen'].value = this.dataset.notizen || "";
 	formObject.elements['Notizen'].focus();
 });
 
-// Zugauswahl für Meldungen merken
+// Nach der Zugauswahl direkt in das Textfeld springen.
+// Die Vorauswahl selbst basiert auf dem Einsatzort (siehe views.zug_fuer_ort)
+// und wird serverseitig im Template gesetzt.
 function rememberZug(obj){
-    localStorage.setItem("letzterZug", obj.options[obj.selectedIndex].value);
-    document.getElementById("MeldungInhalt").focus();
+    var inhalt = document.getElementById("MeldungInhalt");
+    if (inhalt) {
+        inhalt.focus();
+    }
 }
 
-// letzte Auswahl wiederherstellen
-if($("#MeldungZug").length){
-    document.getElementById("MeldungZug").value = localStorage.getItem("letzterZug");
+// Aufraeumen: fruehere Versionen haben die Zugauswahl im Browser gespeichert
+try {
+    localStorage.removeItem("letzterZug");
+} catch (e) {
+    // localStorage nicht verfuegbar - unkritisch
 }

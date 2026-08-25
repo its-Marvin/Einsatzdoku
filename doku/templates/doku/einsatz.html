@@ -1,5 +1,6 @@
 {% extends "doku/base_generic.html" %}
 {% load static %}
+{% load statik %}
 
 {% block content %}
 {% if einsatz %}
@@ -27,5 +28,5 @@
 {% else %}
 	<h2>Kein Einsatz mit dieser Nummer vorhanden!</h2>
 {% endif %}
-	<script type="text/javascript" src="{% static 'doku/einsatz.js' %}"></script>
+	<script type="text/javascript" src="{% static_v 'doku/einsatz.js' %}"></script>
 {% endblock %}
